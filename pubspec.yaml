@@ -29,6 +29,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   dynamic_color: ^1.4.0
+  google_maps_flutter: ^2.0.10
   flutter:
     sdk: flutter
 
