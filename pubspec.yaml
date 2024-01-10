@@ -70,6 +70,62 @@ flutter:
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/assets-and-images/#from-packages
 
+  fonts:
+    - family: caveat
+      fonts:
+        - asset: fonts/caveat_regular.ttf
+        - asset: fonts/caveat_medium.ttf
+          weight: 500
+        - asset: fonts/caveat_semibold.ttf
+          weight: 600
+        - asset: fonts/caveat_bold.ttf
+          weight: 700
+    - family: lobster_two
+      fonts:
+        - asset: fonts/lobster_two_regular.ttf
+        - asset: fonts/lobster_two_italic.ttf
+          style: italic
+        - asset: fonts/lobster_two_bold.ttf
+          weight: 700
+        - asset: fonts/lobster_two_bold_italic.ttf
+          weight: 700
+          style: italic
+    - family: mplus_rounded1c
+      fonts:
+        - asset: fonts/mplus_rounded1c_thin.ttf
+          weight: 100
+        - asset: fonts/mplus_rounded1c_light.ttf
+          weight: 300
+        - asset: fonts/mplus_rounded1c_regular.ttf
+        - asset: fonts/mplus_rounded1c_medium.ttf
+          weight: 500
+        - asset: fonts/mplus_rounded1c_bold.ttf
+          weight: 700
+        - asset: fonts/mplus_rounded1c_extrabold.ttf
+          weight: 800
+        - asset: fonts/mplus_rounded1c_black.ttf
+          weight: 900
+    - family: ubuntu
+      fonts:
+        - asset: fonts/ubuntu_light.ttf
+          weight: 300
+        - asset: fonts/ubuntu_light_italic.ttf
+          weight: 300
+          style: italic
+        - asset: fonts/ubuntu_regular.ttf
+        - asset: fonts/ubuntu_italic.ttf
+          style: italic
+        - asset: fonts/ubuntu_medium.ttf
+          weight: 500
+        - asset: fonts/ubuntu_medium_italic.ttf
+          weight: 500
+          style: italic
+        - asset: fonts/ubuntu_bold.ttf
+          weight: 700
+        - asset: fonts/ubuntu_bold_italic.ttf
+          weight: 700
+          style: italic
+
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
   # "family" key with the font family name, and a "fonts" key with a

@@ -1,6 +1,7 @@
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'mainHelpers.dart';
 
 void main() {
   runApp(const MyApp());
@@ -74,6 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    String greeting = getGreeting();
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -97,6 +99,14 @@ class _MyHomePageState extends State<MyHomePage> {
         children: <Widget>[
           Column(mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text(
+              greeting,
+              style: const TextStyle(
+                fontFamily: 'caveat',
+                fontWeight: FontWeight.w500,
+                fontSize: 24.0,
+              ),
+            ),
             const Text(
               'You have pushed the button this many times:',
             ),
