@@ -1,6 +1,6 @@
-# REPLACE WITH YOUR APP NAME
+# Weicheng's CASA0015
 
-This is the Final assessment template for CASA0014 - Please use this template and edit the relevant sections to personalise.
+This is the Final assessment template for CASA0015 - Please use this template and edit the relevant sections to personalise.
 This section has a short introduction to what the application is
 
 ## Use this README File 
@@ -16,7 +16,7 @@ Look at some other Flutter Apps online and see how they use there README File.  
 
 ## Include A Section That Tells Developers How To Install The App
 
-Include a section that gives intructions on how to install the app or run it in Flutter.  What versions of the plugins are you assuming?  Maybe define a licence
+Include a section that gives instructions on how to install the app or run it in Flutter.  What versions of the plugins are you assuming?  Maybe define a licence
 
 ##  Contact Details
 
