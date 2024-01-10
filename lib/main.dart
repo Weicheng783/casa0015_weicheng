@@ -2,6 +2,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'mainHelpers.dart';
+import 'navigation.dart';
 
 void main() {
   runApp(const MyApp());
@@ -76,6 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     String greeting = getGreeting();
+    Size size = MediaQuery.of(context).size;
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -114,7 +116,13 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
+            SizedBox(
+                height: size.height,
+                width: size.height,
+                child: const NavigationExample()
+            ),
           ],)
+
           // Theme.of(context).platform == TargetPlatform.iOS ? // ternary if statement to check for iOS
           // CupertinoAlertDialog() : // Cupertino style dialog
           // AlertDialog(),// Material style dialog
