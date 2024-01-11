@@ -1,22 +1,17 @@
-import 'dart:async';
-import 'dart:math' as math;
-
-import 'package:dynamic_color/dynamic_color.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:sensors_plus/sensors_plus.dart';
+import 'package:dynamic_color/dynamic_color.dart';
 import 'mainHelpers.dart';
 import 'package:location/location.dart';
 import 'navigation.dart';
+import 'login.dart'; // Import the login screen file
 
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key});
 
   static final _defaultLightColorScheme =
   ColorScheme.fromSwatch(primarySwatch: Colors.blue);
@@ -50,17 +45,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
+  const MyHomePage({Key? key, required this.title});
   final String title;
 
   @override
@@ -69,14 +54,10 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   void _incrementCounter() {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
       _counter++;
     });
   }
@@ -86,106 +67,121 @@ class _MyHomePageState extends State<MyHomePage> {
     String greeting = getGreeting();
     Size size = MediaQuery.of(context).size;
     int currentPageIndex = 0;
-    Color color_sec = Theme.of(context).colorScheme.primaryContainer;
-    final Completer<GoogleMapController> _controller =
-    Completer<GoogleMapController>();
+    Color color_sec = Theme.of(context).colorScheme.secondaryContainer;
 
-    const CameraPosition _kGooglePlex = CameraPosition(
-      target: LatLng(37.42796133580664, -122.085749655962),
-      zoom: 14.4746,
+    // Set the system UI overlay style in the main build method
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        systemNavigationBarColor:
+        Theme.of(context).colorScheme.secondaryContainer,
+        statusBarColor: Theme.of(context).colorScheme.background,
+      ),
     );
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      bottomNavigationBar: NavigationBar(
-        onDestinationSelected: (int index) {
-          setState(() {
-            currentPageIndex = index;
-          });
-        },
-        height: 70,
-        backgroundColor: color_sec,
-        surfaceTintColor: color_sec,
-        indicatorColor: Colors.amber,
-        selectedIndex: currentPageIndex,
-        destinations: const <Widget>[
-          NavigationDestination(
-            selectedIcon: Icon(Icons.home),
-            icon: Icon(Icons.home_outlined),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Badge(child: Icon(Icons.notifications_sharp)),
-            label: 'Notifications',
-          ),
-          NavigationDestination(
-            icon: Badge(
-              label: Text('1'),
-              child: Icon(Icons.messenger_sharp),
-            ),
-            label: 'Messages',
-          ),
-        ],
-      ),
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: color_sec,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-        systemOverlayStyle: SystemUiOverlayStyle.light.copyWith(systemNavigationBarColor: color_sec,
-            statusBarColor: color_sec),
-      ),
-      body: ListView( // Wrap your main content with a ListView
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        children: <Widget>[
-          Column(mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              greeting,
-              style: const TextStyle(
-                fontFamily: 'caveat',
-                fontWeight: FontWeight.w500,
-                fontSize: 24.0,
-              ),
-            ),
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            // GoogleMap(
-            //   mapType: MapType.hybrid,
-            //   initialCameraPosition: _kGooglePlex,
-            //   onMapCreated: (GoogleMapController controller) {
-            //     _controller.complete(controller);
-            //   },
-            // ),
-            SizedBox(
-                height: 600,
-                width: size.width*0.95,
-                child: MapSample()
-            ),
-          ],)
 
-          // Theme.of(context).platform == TargetPlatform.iOS ? // ternary if statement to check for iOS
-          // CupertinoAlertDialog() : // Cupertino style dialog
-          // AlertDialog(),// Material style dialog
-        ],
+    return WillPopScope(
+      onWillPop: () async {
+        // If the current page is not the home page, simulate a back press
+        if (currentPageIndex != 0) {
+          _navigatorKey.currentState?.pop();
+          return false;
+        }
+        return true; // Allow the default back button behavior on the home page
+      },
+      child: Scaffold(
+        bottomNavigationBar: NavigationBar(
+          onDestinationSelected: (int index) {
+            setState(() {
+              currentPageIndex = index;
+              // Add logic for LoginScreen navigation here
+              if (currentPageIndex == 3) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                );
+              }
+            });
+          },
+          height: 70,
+          backgroundColor: color_sec,
+          surfaceTintColor: color_sec,
+          indicatorColor: Theme.of(context).colorScheme.onPrimary,
+          selectedIndex: currentPageIndex,
+          destinations: const <Widget>[
+            NavigationDestination(
+              selectedIcon: Icon(Icons.home),
+              icon: Icon(Icons.home_outlined),
+              label: 'Home',
+            ),
+            NavigationDestination(
+              icon: Badge(child: Icon(Icons.notifications_sharp)),
+              label: 'Notifications',
+            ),
+            NavigationDestination(
+              icon: Badge(
+                label: Text('1'),
+                child: Icon(Icons.messenger_sharp),
+              ),
+              label: 'Messages',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.login),
+              label: 'Login',
+            ),
+          ],
+        ),
+        appBar: currentPageIndex == 0
+            ? null
+            : AppBar(
+          backgroundColor: color_sec, // Use the regular color for other pages
+          title: Text(widget.title),
+          systemOverlayStyle: SystemUiOverlayStyle.light.copyWith(
+            systemNavigationBarColor: color_sec,
+            statusBarColor: Theme.of(context).colorScheme.background,
+          ),
+        ),
+        body: SafeArea(
+          child: Navigator(
+            key: _navigatorKey,
+            onGenerateRoute: (routeSettings) {
+              // Add logic to generate routes based on currentIndex if needed
+              return MaterialPageRoute(builder: (context) {
+                return ListView(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  children: <Widget>[
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          greeting,
+                          style: const TextStyle(
+                            fontFamily: 'caveat',
+                            fontWeight: FontWeight.w500,
+                            fontSize: 40,
+                          ),
+                        ),
+                        const Text(
+                          'You have pushed the button this many times:',
+                        ),
+                        Text(
+                          '$_counter',
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                        SizedBox(
+                          height: 600,
+                          width: size.width * 0.95,
+                          child: MapSample(),
+                        ),
+                      ],
+                    )
+                  ],
+                );
+              });
+            },
+          ),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
