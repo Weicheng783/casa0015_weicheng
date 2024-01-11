@@ -31,9 +31,11 @@ class MyApp extends StatelessWidget {
         title: 'Story Trail',
         theme: ThemeData(
           useMaterial3: true, colorScheme: lightColorScheme ?? _defaultLightColorScheme.copyWith(background: lightColorScheme?.primaryContainer ?? Colors.white),
+          scaffoldBackgroundColor: lightColorScheme?.primaryContainer ?? Colors.white
         ),
         darkTheme: ThemeData(
           useMaterial3: true, colorScheme: darkColorScheme ?? _defaultDarkColorScheme.copyWith(background: darkColorScheme?.primaryContainer ?? Colors.black),
+          scaffoldBackgroundColor: darkColorScheme?.secondaryContainer ?? Colors.black
         ),
         themeMode: currentBrightness == Brightness.dark
             ? ThemeMode.dark
@@ -111,7 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
       SystemUiOverlayStyle(
         systemNavigationBarColor:
         Theme.of(context).colorScheme.secondaryContainer,
-        statusBarColor: Theme.of(context).colorScheme.background,
+        statusBarColor: Theme.of(context).colorScheme.secondaryContainer,
       ),
     );
 
@@ -280,11 +282,18 @@ class _MyHomePageState extends State<MyHomePage> {
                         //   },
                         //   child: Icon(Icons.refresh),
                         // ),
-                        SizedBox(
-                          height: size.height * 0.45,
-                          width: size.width * 0.95,
-                          child: MapSample(),
+                        Container(
+                          width: size.width * 0.95, // Set width to 95% of the screen width
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10.0), // Set the corner radius as needed
+                            child: SizedBox(
+                              height: size.height * 0.45,
+                              width: size.width * 0.95,
+                              child: MapSample(), // Your existing content, replace with Text if needed
+                            ),
+                          ),
                         ),
+
                       ],
                     )
                   ],
