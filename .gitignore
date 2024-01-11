@@ -44,3 +44,7 @@ app.*.map.json
 /android/app/src/main/res/values/
 /android/app/src/main/res/
 /android/app/src/main/AndroidManifest.xml
+/linux/
+/macos/
+/web/
+/windows/
