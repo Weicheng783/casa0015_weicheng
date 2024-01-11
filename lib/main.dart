@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dynamic_color/dynamic_color.dart';
@@ -154,13 +156,27 @@ class _MyHomePageState extends State<MyHomePage> {
                         Text(
                           greeting,
                           style: const TextStyle(
-                            fontFamily: 'caveat',
+                            // fontFamily: 'caveat',
                             fontWeight: FontWeight.w500,
-                            fontSize: 40,
+                            fontSize: 30,
                           ),
                         ),
                         const Text(
-                          'You have pushed the button this many times:',
+                          "Welcome to Story Trail",
+                          style: TextStyle(
+                            fontFamily: 'mplus_rounded1c',
+                            fontWeight: FontWeight.w400,
+                            fontSize: 30,
+                          ),
+                        ),
+                        Text(
+                          encouragementSentences[Random().nextInt(encouragementSentences.length-1)],
+                          style: const TextStyle(
+                            fontFamily: 'lobster_two',
+                            fontWeight: FontWeight.w400,
+                            fontSize: 20,
+                          ),
+                          textAlign: TextAlign.center, // Horizontal alignment
                         ),
                         Text(
                           '$_counter',
