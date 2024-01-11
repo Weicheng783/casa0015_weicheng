@@ -1,130 +1,202 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:story.trail/main.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 
-class NavigationBarApp extends StatelessWidget {
-  const NavigationBarApp({super.key});
+class LocationService {
+  static Future<LocationData> getLocation() async {
+    Location location = Location();
+
+    try {
+      return await location.getLocation();
+    } catch (e) {
+      print('Error: $e');
+      throw e;
+    }
+  }
+
+  static Future<bool> requestLocationPermission() async {
+    Location location = Location();
+
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return false;
+      }
+    }
+
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+}
+
+class MapSample extends StatefulWidget {
+  @override
+  MapSampleState createState() => MapSampleState();
+}
+
+class LocationInfo extends StatelessWidget {
+  final double latitude;
+  final double longitude;
+
+  LocationInfo({required this.latitude, required this.longitude});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(useMaterial3: true),
-      home: const NavigationExample(),
+    return Column(
+      children: [
+        Text("Latitude: $latitude"),
+        Text("Longitude: $longitude"),
+        // Add more information as needed, e.g., orientation, etc.
+      ],
     );
   }
 }
 
-class NavigationExample extends StatefulWidget {
-  const NavigationExample({super.key});
+class MapSampleState extends State<MapSample> {
+  late GoogleMapController mapController;
+  LocationData? currentLocation;
+  bool locationPermissionGranted = false;
 
   @override
-  State<NavigationExample> createState() => _NavigationExampleState();
-}
+  void initState() {
+    super.initState();
+    _initMap();
+  }
 
-class _NavigationExampleState extends State<NavigationExample> {
-  int currentPageIndex = 0;
+  void _initMap() async {
+    try {
+      locationPermissionGranted = await LocationService.requestLocationPermission();
+
+      if (locationPermissionGranted) {
+        await _updateLocation();
+      }
+    } catch (e) {
+      print('Error initializing map: $e');
+    }
+  }
+
+  Future<void> _updateLocation() async {
+    try {
+      currentLocation = await LocationService.getLocation();
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      print('Error updating location: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     return Scaffold(
-      bottomNavigationBar: NavigationBar(
-        onDestinationSelected: (int index) {
-          setState(() {
-            currentPageIndex = index;
-          });
-        },
-        indicatorColor: Colors.amber,
-        selectedIndex: currentPageIndex,
-        destinations: const <Widget>[
-          NavigationDestination(
-            selectedIcon: Icon(Icons.home),
-            icon: Icon(Icons.home_outlined),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Badge(child: Icon(Icons.notifications_sharp)),
-            label: 'Notifications',
-          ),
-          NavigationDestination(
-            icon: Badge(
-              label: Text('1'),
-              child: Icon(Icons.messenger_sharp),
-            ),
-            label: 'Messages',
-          ),
-        ],
+      body: Container(
+        alignment: Alignment.center,
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (!locationPermissionGranted || currentLocation == null)
+              Column(
+                children: [
+                  // Large centered icon and explanatory text
+                  Icon(
+                    Icons.location_off,
+                    size: 96.0,
+                    color: Colors.red,
+                  ),
+                  SizedBox(height: 16.0),
+                  Text(
+                    "Location Permission Required",
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 8.0),
+                  Text(
+                    "To use this app, please grant location permission.",
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            if (locationPermissionGranted && currentLocation != null)
+              Container(
+                width: MediaQuery.of(context).size.width,
+                height: 300,
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  elevation: 5.0,
+                  child: GoogleMap(
+                    onMapCreated: (controller) {
+                      mapController = controller;
+                      updateMapCamera(); // Center the map initially
+                    },
+                    initialCameraPosition: CameraPosition(
+                      target: LatLng(
+                        currentLocation!.latitude ?? 0.0,
+                        currentLocation!.longitude ?? 0.0,
+                      ),
+                      zoom: 15.0,
+                    ),
+                    myLocationEnabled: true,
+                    tiltGesturesEnabled: true,
+                    zoomGesturesEnabled: true,
+                    scrollGesturesEnabled: true,
+                  ),
+                ),
+              ),
+            SizedBox(height: 16.0),
+            // Centered button with icon
+            if (!locationPermissionGranted)
+              ElevatedButton.icon(
+                onPressed: () async {
+                  bool granted = await LocationService.requestLocationPermission();
+                  if (granted) {
+                    setState(() {
+                      locationPermissionGranted = true;
+                    });
+                    await _updateLocation();
+                  }
+                },
+                icon: Icon(Icons.location_on),
+                label: Text("Grant Location Permission"),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                ),
+              ),
+          ],
+        ),
       ),
-      body: <Widget>[
-        /// Home page
-        // const Card(
-        //   child: MyApp()
-        // ),
+    );
+  }
 
-        /// Notifications page
-        const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Column(
-            children: <Widget>[
-              Card(
-                child: ListTile(
-                  leading: Icon(Icons.notifications_sharp),
-                  title: Text('Notification 1'),
-                  subtitle: Text('This is a notification'),
-                ),
-              ),
-              Card(
-                child: ListTile(
-                  leading: Icon(Icons.notifications_sharp),
-                  title: Text('Notification 2'),
-                  subtitle: Text('This is a notification'),
-                ),
-              ),
-            ],
+  void updateMapCamera() {
+    mapController.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: LatLng(
+            currentLocation!.latitude ?? 0.0,
+            currentLocation!.longitude ?? 0.0,
           ),
+          zoom: 15.0,
         ),
-
-        /// Messages page
-        ListView.builder(
-          reverse: true,
-          itemCount: 2,
-          itemBuilder: (BuildContext context, int index) {
-            if (index == 0) {
-              return Align(
-                alignment: Alignment.centerRight,
-                child: Container(
-                  margin: const EdgeInsets.all(8.0),
-                  padding: const EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary,
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: Text(
-                    'Hello',
-                    style: theme.textTheme.bodyLarge!
-                        .copyWith(color: theme.colorScheme.onPrimary),
-                  ),
-                ),
-              );
-            }
-            return Align(
-              alignment: Alignment.centerLeft,
-              child: Container(
-                margin: const EdgeInsets.all(8.0),
-                padding: const EdgeInsets.all(8.0),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary,
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: Text(
-                  'Hi!',
-                  style: theme.textTheme.bodyLarge!
-                      .copyWith(color: theme.colorScheme.onPrimary),
-                ),
-              ),
-            );
-          },
-        ),
-      ][currentPageIndex],
+      ),
     );
   }
 }
