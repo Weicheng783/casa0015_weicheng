@@ -30,6 +30,8 @@ environment:
 dependencies:
   dynamic_color: ^1.4.0
   google_maps_flutter: ^2.0.10
+  location: ^5.0.3
+  sensors_plus: ^4.0.2
   flutter:
     sdk: flutter
 

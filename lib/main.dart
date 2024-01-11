@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/foundation.dart';
@@ -6,7 +7,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 import 'mainHelpers.dart';
+import 'package:location/location.dart';
 import 'navigation.dart';
 
 void main() {
@@ -168,8 +171,8 @@ class _MyHomePageState extends State<MyHomePage> {
             //   },
             // ),
             SizedBox(
-                height: size.height,
-                width: size.height,
+                height: 600,
+                width: size.width*0.95,
                 child: MapSample()
             ),
           ],)
@@ -190,18 +193,109 @@ class _MyHomePageState extends State<MyHomePage> {
 
 class MapSample extends StatefulWidget {
   @override
-  State createState() => MapSampleState();
+  MapSampleState createState() => MapSampleState();
 }
 
 class MapSampleState extends State<MapSample> {
   late GoogleMapController mapController;
+  late LocationData currentLocation;
+  String? compassDirection;
+  double? compassHeading;
+  String? phoneOrientation;
+
+  @override
+  void initState() {
+    super.initState();
+    getLocation();
+    initSensors();
+  }
+
+  Future<void> getLocation() async {
+    Location location = Location();
+
+    try {
+      LocationData userLocation = await location.getLocation();
+      setState(() {
+        currentLocation = userLocation;
+      });
+    } catch (e) {
+      print('Error: $e');
+    }
+
+    location.onLocationChanged.listen((LocationData newLocation) {
+      setState(() {
+        currentLocation = newLocation;
+        updateMapCamera();
+      });
+    });
+  }
+
+  void updateMapCamera() {
+    mapController.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: LatLng(
+            currentLocation.latitude ?? 0.0,
+            currentLocation.longitude ?? 0.0,
+          ),
+          zoom: 15.0,
+        ),
+      ),
+    );
+  }
+
+  void initSensors() {
+    magnetometerEvents.listen((MagnetometerEvent event) {
+      double x = event.x;
+      double y = event.y;
+
+      double heading = math.atan2(y, x);
+      heading = heading * (180 / math.pi);
+      if (heading < 0) {
+        heading = 360 + heading;
+      }
+
+      String direction = getCompassDirection(heading);
+
+      setState(() {
+        compassDirection = direction;
+        compassHeading = heading;
+      });
+    });
+
+    accelerometerEvents.listen((AccelerometerEvent event) {
+      setState(() {
+        // Determine phone orientation based on accelerometer data
+        if (event.y > 9.5) {
+          phoneOrientation = "Portrait";
+        } else if (event.y < -9.5) {
+          phoneOrientation = "PortraitUpsideDown";
+        } else if (event.x > 9.5) {
+          phoneOrientation = "LandscapeLeft";
+        } else if (event.x < -9.5) {
+          phoneOrientation = "LandscapeRight";
+        }
+      });
+    });
+  }
+
+  String getCompassDirection(double heading) {
+    const List<String> directions = [
+      'N', 'NNE', 'NE', 'ENE',
+      'E', 'ESE', 'SE', 'SSE',
+      'S', 'SSW', 'SW', 'WSW',
+      'W', 'WNW', 'NW', 'NNW'
+    ];
+
+    int index = ((heading + 11.25) % 360 / 22.5).floor();
+    return directions[index % 16];
+  }
 
   @override
   Widget build(BuildContext context) {
     final Brightness brightnessValue = MediaQuery.of(context).platformBrightness;
     bool isDark = brightnessValue == Brightness.dark;
 
-    // Apply the system theme to the status bar
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarBrightness: isDark ? Brightness.light : Brightness.dark,
@@ -209,29 +303,79 @@ class MapSampleState extends State<MapSample> {
     ));
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Google Maps Example'),
-      ),
-      body: Theme(
-        // Use Theme widget to dynamically switch between light and dark themes
-        data: isDark ? ThemeData.dark() : ThemeData.light(),
-        child: GoogleMap(
-          onMapCreated: (controller) {
-            mapController = controller;
-          },
-          initialCameraPosition: CameraPosition(
-            target: LatLng(37.7749, -122.4194),
-            zoom: 15.0,
-          ),
-          gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
-            Factory<OneSequenceGestureRecognizer>(
-                  () => EagerGestureRecognizer(),
+      body: Container(
+        alignment: Alignment.center,
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: MediaQuery.of(context).size.width,
+              height: 300,
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                elevation: 5.0,
+                child: GoogleMap(
+                  onMapCreated: (controller) {
+                    mapController = controller;
+                    updateMapCamera(); // Center the map initially
+                  },
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(
+                      currentLocation.latitude ?? 0.0,
+                      currentLocation.longitude ?? 0.0,
+                    ),
+                    zoom: 15.0,
+                  ),
+                  myLocationEnabled: true,
+                  tiltGesturesEnabled: true,
+                  zoomGesturesEnabled: true,
+                  scrollGesturesEnabled: true,
+                ),
+              ),
             ),
-          ].toSet(),
-          myLocationEnabled: true,
-          tiltGesturesEnabled: true,
-          zoomGesturesEnabled: true,
-          scrollGesturesEnabled: true,
+            SizedBox(height: 16.0),
+            Text(
+              "User Location Information",
+              style: TextStyle(
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 8.0),
+            StreamBuilder<LocationData>(
+              stream: Location().onLocationChanged,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  LocationData locationData = snapshot.data!;
+                  return Column(
+                    children: [
+                      Text("Latitude: ${locationData.latitude ?? 0.0}"),
+                      Text("Longitude: ${locationData.longitude ?? 0.0}"),
+                      // Add more information as needed, e.g., orientation, etc.
+                    ],
+                  );
+                } else {
+                  return Text("Waiting for location data...");
+                }
+              },
+            ),
+            SizedBox(height: 16.0),
+            Text(
+              "Compass Information",
+              style: TextStyle(
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 8.0),
+            Text("Compass Direction: ${compassDirection ?? 'N/A'}"),
+            // Text("Compass Heading: ${compassHeading ?? 'N/A'} degrees"),
+            Text("Phone Orientation: ${phoneOrientation ?? 'N/A'}"),
+          ],
         ),
       ),
     );
