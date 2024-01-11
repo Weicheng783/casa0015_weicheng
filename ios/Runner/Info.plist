@@ -4,6 +4,13 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+
+	<key>NSLocationWhenInUseUsageDescription</key>
+    <string>We need your location to provide you with nearby restaurant recommendations.</string>
+
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>Continuous location access is required for real-time updates on your delivery status.</string>
+
 	<key>CFBundleDisplayName</key>
 	<string>Story Trail</string>
 	<key>CFBundleExecutable</key>
