@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'mainHelpers.dart';
 import 'package:location/location.dart';
 import 'navigation.dart';
@@ -29,20 +30,35 @@ class MyApp extends StatelessWidget {
       return MaterialApp(
         title: 'Story Trail',
         theme: ThemeData(
-          colorScheme: lightColorScheme ?? _defaultLightColorScheme,
-          useMaterial3: true,
+          useMaterial3: true, colorScheme: lightColorScheme ?? _defaultLightColorScheme.copyWith(background: lightColorScheme?.primaryContainer ?? Colors.white),
         ),
         darkTheme: ThemeData(
-          colorScheme: darkColorScheme ?? _defaultDarkColorScheme,
-          useMaterial3: true,
+          useMaterial3: true, colorScheme: darkColorScheme ?? _defaultDarkColorScheme.copyWith(background: darkColorScheme?.primaryContainer ?? Colors.black),
         ),
         themeMode: currentBrightness == Brightness.dark
             ? ThemeMode.dark
             : ThemeMode.light,
-        home: const MyHomePage(title: 'Weicheng Story Trail'),
+        home: FutureBuilder<bool>(
+          future: isLoggedIn(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              return MyHomePage(
+                title: 'Weicheng Story Trail',
+              );
+            } else {
+              return Scaffold(body: CircularProgressIndicator());
+            }
+          },
+        ),
         debugShowCheckedModeBanner: false, // Disable debug banner
+        // You can also use a different color for dark mode if needed
       );
     });
+  }
+
+  Future<bool> isLoggedIn() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('isLoggedIn') ?? false;
   }
 }
 
@@ -57,6 +73,25 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  bool isLoggedIn = false;
+  String username = 'Guest'; // Default username when not logged in
+  late String loggedInUsername = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLoggedInUsername();
+  }
+
+  Future<void> _loadLoggedInUsername() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? username = prefs.getString('username');
+    if (username != null) {
+      setState(() {
+        loggedInUsername = username;
+      });
+    }
+  }
 
   void _incrementCounter() {
     setState(() {
@@ -98,7 +133,9 @@ class _MyHomePageState extends State<MyHomePage> {
               if (currentPageIndex == 3) {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => LoginScreen(),
+                  ),
                 );
               }
             });
@@ -135,6 +172,17 @@ class _MyHomePageState extends State<MyHomePage> {
             ? null
             : AppBar(
           backgroundColor: color_sec, // Use the regular color for other pages
+          actions: [
+            isLoggedIn
+                ? Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                'Welcome, $username!',
+                style: TextStyle(fontSize: 16),
+              ),
+            )
+                : SizedBox.shrink(),
+          ],
           title: Text(widget.title),
           systemOverlayStyle: SystemUiOverlayStyle.light.copyWith(
             systemNavigationBarColor: color_sec,
@@ -169,21 +217,71 @@ class _MyHomePageState extends State<MyHomePage> {
                             fontSize: 30,
                           ),
                         ),
-                        Text(
-                          encouragementSentences[Random().nextInt(encouragementSentences.length-1)],
-                          style: const TextStyle(
-                            fontFamily: 'lobster_two',
-                            fontWeight: FontWeight.w400,
-                            fontSize: 20,
+                        if (loggedInUsername.isNotEmpty)
+                          ElevatedButton(
+                            onPressed: () {
+                              loggedInUsername = '';
+                              logoutUser();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Logged out successfully!'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                              setState(() {});
+                            },
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.logout),
+                                SizedBox(width: 8),
+                                Text('Logged in as: $loggedInUsername'),
+                              ],
+                            ),
                           ),
-                          textAlign: TextAlign.center, // Horizontal alignment
+                        if (loggedInUsername.isEmpty)
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() {});
+                            },
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.person),
+                                SizedBox(width: 8),
+                                Text('Welcome, Guest'),
+                              ],
+                            ),
+                          ),
+                        Container(
+                          width: size.width * 0.95, // Set width to 95% of the screen width
+                          child: Text(
+                            textAlign: TextAlign.center, // Horizontal alignment
+                            encouragementSentences[Random().nextInt(encouragementSentences.length - 1)],
+                            style: const TextStyle(
+                              fontFamily: 'lobster_two',
+                              fontWeight: FontWeight.w400,
+                              fontSize: 20,
+                            ),
+                          ),
                         ),
-                        Text(
-                          '$_counter',
-                          style: Theme.of(context).textTheme.headlineMedium,
-                        ),
+                        // Text(
+                        //   '$_counter',
+                        //   style: Theme.of(context).textTheme.headlineMedium,
+                        // ),
+                        // FloatingActionButton(
+                        //   onPressed: () async {
+                        //     // Call the function when the FAB is tapped
+                        //     _loadLoggedInUsername();
+                        //     SharedPreferences prefs = await SharedPreferences.getInstance();
+                        //     String? storedValue = prefs.getString('username');
+                        //     print('Stored value: $storedValue');
+                        //     setState(() {});
+                        //   },
+                        //   child: Icon(Icons.refresh),
+                        // ),
                         SizedBox(
-                          height: 600,
+                          height: size.height * 0.45,
                           width: size.width * 0.95,
                           child: MapSample(),
                         ),
@@ -200,4 +298,9 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+}
+
+void logoutUser() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.setString('username', '');
 }
