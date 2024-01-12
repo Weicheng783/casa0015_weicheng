@@ -165,8 +165,8 @@ class _MyHomePageState extends State<MyHomePage> {
               label: 'Messages',
             ),
             NavigationDestination(
-              icon: Icon(Icons.login),
-              label: 'Login',
+              icon: Icon(Icons.perm_contact_cal),
+              label: 'My Trail',
             ),
           ],
         ),

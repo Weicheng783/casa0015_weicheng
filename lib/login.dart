@@ -55,6 +55,12 @@ class LoginScreen extends StatelessWidget {
               // Implement your logic here
               // For example, clear password if it's incorrect
               _forgiveFocusToFields();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(data['message']),
+                  duration: Duration(seconds: 2),
+                ),
+              );
               passwordController.clear();
             }
           });
@@ -69,6 +75,7 @@ class LoginScreen extends StatelessWidget {
               duration: Duration(seconds: 2),
             ),
           );
+          passwordController.clear();
         }
       } else {
         print('Error: ${response.statusCode}');
@@ -102,7 +109,8 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login'),
+        title: Text('My Trail Account'),
+        backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
       ),
       resizeToAvoidBottomInset: false,
       body: SingleChildScrollView(
@@ -114,11 +122,22 @@ class LoginScreen extends StatelessWidget {
               TextField(
                 controller: usernameController,
                 focusNode: usernameFocus,
-                decoration: InputDecoration(labelText: 'Username'),
+                textInputAction: TextInputAction.next,  // Set the action to "Next"
+                onSubmitted: (_) {
+                  // Focus on the password field when the "Next" key is pressed
+                  FocusScope.of(context).requestFocus(passwordFocus);
+                },
+                decoration: InputDecoration(labelText: 'User Name'),
               ),
               TextField(
                 controller: passwordController,
                 focusNode: passwordFocus,
+                textInputAction: TextInputAction.go,
+                onSubmitted: (_) {
+                  // Perform the login action when the "Done" key is pressed
+                  _forgiveFocusToFields();
+                  loginUser(context);
+                },
                 obscureText: true,
                 decoration: InputDecoration(labelText: 'Password'),
               ),
@@ -127,9 +146,17 @@ class LoginScreen extends StatelessWidget {
                 onPressed: () {
                   _giveFocusToFields();
                   loginUser(context);
-                  // testSharedPreferences();
                 },
-                child: Text('Login'),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.login),
+                    Text('/'),
+                    Icon(Icons.app_registration),
+                    SizedBox(width: 8),
+                    Text('Login/Register'),
+                  ],
+                ),
               ),
             ],
           ),
