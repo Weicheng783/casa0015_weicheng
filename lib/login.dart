@@ -129,7 +129,7 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
+        title: const Row(
           children: [
             Icon(Icons.perm_contact_cal),
             SizedBox(width: 8), // Adjust the space between the icon and text
@@ -145,6 +145,13 @@ class LoginScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Image.asset(
+                'assets/story_trail.png', // Replace with the actual path to your app icon
+                height: 100, // Adjust the height as needed
+                width: 100,  // Adjust the width as needed
+              ),
+              SizedBox(height: 16), // Add some space between the icon and the TextField
+
               if(username!=null)
                 if(username!.isEmpty)
                   TextField(
@@ -233,6 +240,30 @@ class LoginScreen extends StatelessWidget {
                       ],
                     ),
                   ),
+              if(username!=null)
+                if(username!.isNotEmpty)
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(username!,
+                        style: TextStyle(
+                          fontFamily: 'mplus_rounded1c',
+                          fontWeight: FontWeight.w400,
+                          fontSize: 30,
+                        ),
+                      ),
+                      Text(
+                        "Welcome to Story Trail",
+                        style: TextStyle(
+                          fontFamily: 'mplus_rounded1c',
+                          fontWeight: FontWeight.w400,
+                          fontSize: 30,
+                        ),
+                      ),
+
+                    ]
+                  ),
+
               if(username==null)
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,

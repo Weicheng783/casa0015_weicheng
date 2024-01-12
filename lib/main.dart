@@ -152,7 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
             setState(() {
               currentPageIndex = index;
               // Add logic for LoginScreen navigation here
-              if (currentPageIndex == 3) {
+              if (currentPageIndex == 1) {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -173,17 +173,17 @@ class _MyHomePageState extends State<MyHomePage> {
               icon: Icon(Icons.home_outlined),
               label: 'Home',
             ),
-            NavigationDestination(
-              icon: Badge(child: Icon(Icons.notifications_sharp)),
-              label: 'Notifications',
-            ),
-            NavigationDestination(
-              icon: Badge(
-                label: Text('1'),
-                child: Icon(Icons.messenger_sharp),
-              ),
-              label: 'Messages',
-            ),
+            // NavigationDestination(
+            //   icon: Badge(child: Icon(Icons.notifications_sharp)),
+            //   label: 'Notifications',
+            // ),
+            // NavigationDestination(
+            //   icon: Badge(
+            //     label: Text('1'),
+            //     child: Icon(Icons.messenger_sharp),
+            //   ),
+            //   label: 'Messages',
+            // ),
             NavigationDestination(
               icon: Icon(Icons.perm_contact_cal),
               label: 'My Trail',
