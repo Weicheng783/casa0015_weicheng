@@ -62,6 +62,7 @@ class MyApp extends StatelessWidget {
 
   Future<bool> isLoggedIn() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    fetchPreferences();
     return prefs.getBool('isLoggedIn') ?? false;
   }
 }
@@ -74,16 +75,32 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+String loggedInUsername = '';
+
+Future<void> getLoggedInUsername() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? username = prefs.getString('username');
+  if (username != null) {
+    loggedInUsername = username;
+  }
+}
+
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   bool isLoggedIn = false;
   String username = 'Guest'; // Default username when not logged in
-  late String loggedInUsername = '';
 
   @override
   void initState() {
     super.initState();
+    _loadLoggedInUsername();
+    fetchPreferences();
+  }
+
+  @override
+  void didChangeDependencies(){
+    super.didChangeDependencies();
     _loadLoggedInUsername();
   }
 
@@ -91,6 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? username = prefs.getString('username');
     if (username != null) {
+      fetchPreferences();
       setState(() {
         loggedInUsername = username;
       });
@@ -226,12 +244,14 @@ class _MyHomePageState extends State<MyHomePage> {
                             onPressed: () {
                               loggedInUsername = '';
                               logoutUser();
+                              _loadLoggedInUsername();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text('Logged out successfully!'),
                                   duration: Duration(seconds: 2),
                                 ),
                               );
+                              fetchPreferences();
                               setState(() {});
                             },
                             child: Row(
@@ -246,6 +266,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         if (loggedInUsername.isEmpty)
                           ElevatedButton(
                             onPressed: () {
+                              fetchPreferences();
                               setState(() {});
                             },
                             child: Row(

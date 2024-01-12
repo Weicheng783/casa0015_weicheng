@@ -3,11 +3,31 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'main.dart';
+
+String? username = '';
+
+Future<void> fetchPreferences() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  // Read from SharedPreferences
+  if(prefs.getString('username') != null){
+    username = prefs.getString('username');
+  }else{
+    username = '';
+  }
+}
+
 class LoginScreen extends StatelessWidget {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final FocusNode usernameFocus = FocusNode();
   final FocusNode passwordFocus = FocusNode();
+
+  LoginScreen({super.key});
+  Future<void> logoutUser(BuildContext context) async {
+    saveUsername("");
+    Navigator.pop(context, "");
+  }
 
   Future<void> loginUser(BuildContext context) async {
     final String loginUrl = 'https://weicheng.app/flutter/login.php';
@@ -111,9 +131,9 @@ class LoginScreen extends StatelessWidget {
       appBar: AppBar(
         title: Row(
           children: [
-            Icon(Icons.perm_contact_cal), // Replace with the actual icon you want
+            Icon(Icons.perm_contact_cal),
             SizedBox(width: 8), // Adjust the space between the icon and text
-            Text('My Trail Account'),
+            Text('My Trail Membership'),
           ],
         ),
         backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
@@ -125,45 +145,120 @@ class LoginScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TextField(
-                controller: usernameController,
-                focusNode: usernameFocus,
-                textInputAction: TextInputAction.next,  // Set the action to "Next"
-                onSubmitted: (_) {
-                  // Focus on the password field when the "Next" key is pressed
-                  FocusScope.of(context).requestFocus(passwordFocus);
-                },
-                decoration: InputDecoration(labelText: 'User Name'),
-              ),
-              TextField(
-                controller: passwordController,
-                focusNode: passwordFocus,
-                textInputAction: TextInputAction.go,
-                onSubmitted: (_) {
-                  // Perform the login action when the "Done" key is pressed
-                  _forgiveFocusToFields();
-                  loginUser(context);
-                },
-                obscureText: true,
-                decoration: InputDecoration(labelText: 'Password'),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  _giveFocusToFields();
-                  loginUser(context);
-                },
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+              if(username!=null)
+                if(username!.isEmpty)
+                  TextField(
+                    controller: usernameController,
+                    focusNode: usernameFocus,
+                    textInputAction: TextInputAction.next,  // Set the action to "Next"
+                    onSubmitted: (_) {
+                      // Focus on the password field when the "Next" key is pressed
+                      FocusScope.of(context).requestFocus(passwordFocus);
+                      fetchPreferences();
+                    },
+                    decoration: InputDecoration(labelText: 'User Name'),
+                  ),
+              if(username!=null)
+                if(username!.isEmpty)
+                  TextField(
+                    controller: passwordController,
+                    focusNode: passwordFocus,
+                    textInputAction: TextInputAction.go,
+                    onSubmitted: (_) {
+                      // Perform the login action when the "Done" key is pressed
+                      _forgiveFocusToFields();
+                      loginUser(context);
+                      fetchPreferences();
+                    },
+                    obscureText: true,
+                    decoration: InputDecoration(labelText: 'Password'),
+                  ),
+              if(username!=null)
+                if(username!.isEmpty)
+                  SizedBox(height: 20),
+              if(username!=null)
+                if(username!.isEmpty)
+                  ElevatedButton(
+                    onPressed: () {
+                      _giveFocusToFields();
+                      loginUser(context);
+                      fetchPreferences();
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.login),
+                        Text('/'),
+                        Icon(Icons.app_registration),
+                        SizedBox(width: 8),
+                        Text('Login/Register'),
+                      ],
+                    ),
+                  ),
+              if(username!=null)
+                if(username!.isNotEmpty)
+                  ElevatedButton(
+                    onPressed: () async {
+                      username = '';
+                      logoutUser(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Logged out successfully!'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                      fetchPreferences();
+
+                      // Refresh for page reconstruction on back
+                      // final value = await Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //       builder: (context) => MyHomePage(title: '',)
+                      //   ),
+                      // );
+
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MyHomePage(title: '',),
+                        ),
+                      );
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.logout),
+                        SizedBox(width: 8),
+                        Text('Log out/Sign out'),
+                      ],
+                    ),
+                  ),
+              if(username==null)
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.login),
-                    Text('/'),
-                    Icon(Icons.app_registration),
-                    SizedBox(width: 8),
-                    Text('Login/Register'),
+                    // Large centered icon and explanatory text
+                    Icon(
+                      Icons.location_off,
+                      size: 96.0,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                    SizedBox(height: 16.0),
+                    Text(
+                      "Location Permission Required",
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 8.0),
+                    Text(
+                      "To use this app, please grant location permission.",
+                      textAlign: TextAlign.center,
+                    ),
                   ],
                 ),
-              ),
             ],
           ),
         ),

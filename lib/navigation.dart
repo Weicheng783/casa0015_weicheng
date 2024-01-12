@@ -6,6 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
 
+import 'main.dart';
 import 'mapHelper.dart';
 
 class LocationService {
@@ -159,7 +160,7 @@ class MapSampleState extends State<MapSample> {
                   Icon(
                     Icons.location_off,
                     size: 96.0,
-                    color: Colors.red,
+                    color: Theme.of(context).colorScheme.error,
                   ),
                   SizedBox(height: 16.0),
                   Text(
@@ -191,6 +192,7 @@ class MapSampleState extends State<MapSample> {
                       mapController = controller;
                       setMapTheme(mapController, currentBrightness == Brightness.dark);
                       updateMapCamera(); // Center the map initially
+                      getLoggedInUsername();
                     },
                     initialCameraPosition: CameraPosition(
                       target: LatLng(
