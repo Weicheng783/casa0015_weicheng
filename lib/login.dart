@@ -2,10 +2,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io' show Platform;
 
 import 'main.dart';
 
 String? username = '';
+String iosNameInput = '';
+String iosPasswordInput = '';
 
 Future<void> fetchPreferences() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -17,9 +20,10 @@ Future<void> fetchPreferences() async {
   }
 }
 
+final TextEditingController usernameController = TextEditingController();
+final TextEditingController passwordController = TextEditingController();
+
 class LoginScreen extends StatelessWidget {
-  final TextEditingController usernameController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
   final FocusNode usernameFocus = FocusNode();
   final FocusNode passwordFocus = FocusNode();
 
@@ -36,6 +40,9 @@ class LoginScreen extends StatelessWidget {
       'username': usernameController.text,
       'userpassword': passwordController.text,
     };
+
+    // print(usernameController.text);
+    // print(passwordController.text);
 
     try {
       final response = await http.post(
@@ -63,27 +70,30 @@ class LoginScreen extends StatelessWidget {
               duration: Duration(seconds: 2),
             ),
           );
-          controller.closed.then((reason) {
-            if (reason == SnackBarClosedReason.timeout) {
-              // SnackBar closed due to timeout
-              // Implement your logic here
-              // For example, save username to SharedPreferences
-              saveUsername(usernameController.text);
-              Navigator.pop(context, usernameController.text);
-            } else if (reason == SnackBarClosedReason.dismiss) {
-              // SnackBar closed due to user's action
-              // Implement your logic here
-              // For example, clear password if it's incorrect
-              _forgiveFocusToFields();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(data['message']),
-                  duration: Duration(seconds: 2),
-                ),
-              );
-              passwordController.clear();
-            }
-          });
+
+          if(Platform.isAndroid){
+            controller.closed.then((reason) {
+              if (reason == SnackBarClosedReason.timeout) {
+                // SnackBar closed due to timeout
+                // Implement your logic here
+                // For example, save username to SharedPreferences
+                saveUsername(usernameController.text);
+                Navigator.pop(context, usernameController.text);
+              } else if (reason == SnackBarClosedReason.dismiss) {
+                // SnackBar closed due to user's action
+                // Implement your logic here
+                // For example, clear password if it's incorrect
+                _forgiveFocusToFields();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(data['message']),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+                passwordController.clear();
+              }
+            });
+          }
 
           saveUsername(usernameController.text); // Save username to SharedPreferences
           Navigator.pop(context, usernameController.text);
@@ -125,6 +135,18 @@ class LoginScreen extends StatelessWidget {
     });
   }
 
+  void _giveFocusToUsername() {
+    Future.delayed(Duration.zero, () {
+      usernameFocus.requestFocus();
+    });
+  }
+
+  void _giveFocusToPassword() {
+    Future.delayed(Duration.zero, () {
+      passwordFocus.requestFocus();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -136,7 +158,7 @@ class LoginScreen extends StatelessWidget {
             Text('My Trail Membership'),
           ],
         ),
-        backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+        backgroundColor: Platform.isIOS ? null : Theme.of(context).colorScheme.secondaryContainer,
       ),
       resizeToAvoidBottomInset: false,
       body: SingleChildScrollView(
@@ -154,32 +176,66 @@ class LoginScreen extends StatelessWidget {
 
               if(username!=null)
                 if(username!.isEmpty)
-                  TextField(
-                    controller: usernameController,
-                    focusNode: usernameFocus,
-                    textInputAction: TextInputAction.next,  // Set the action to "Next"
-                    onSubmitted: (_) {
-                      // Focus on the password field when the "Next" key is pressed
-                      FocusScope.of(context).requestFocus(passwordFocus);
-                      fetchPreferences();
-                    },
-                    decoration: InputDecoration(labelText: 'User Name'),
-                  ),
+                  if(Platform.isAndroid)
+                    TextField(
+                      controller: usernameController,
+                      focusNode: usernameFocus,
+                      textInputAction: TextInputAction.next,  // Set the action to "Next"
+                      onSubmitted: (_) {
+                        // Focus on the password field when the "Next" key is pressed
+                        FocusScope.of(context).requestFocus(passwordFocus);
+                        fetchPreferences();
+                      },
+                      decoration: InputDecoration(labelText: 'User Name'),
+                    ),
               if(username!=null)
                 if(username!.isEmpty)
-                  TextField(
-                    controller: passwordController,
-                    focusNode: passwordFocus,
-                    textInputAction: TextInputAction.go,
-                    onSubmitted: (_) {
-                      // Perform the login action when the "Done" key is pressed
-                      _forgiveFocusToFields();
-                      loginUser(context);
-                      fetchPreferences();
-                    },
-                    obscureText: true,
-                    decoration: InputDecoration(labelText: 'Password'),
-                  ),
+                  if(Platform.isIOS)
+                    TextField(
+                      focusNode: usernameFocus,
+                      textInputAction: TextInputAction.next,  // Set the action to "Next"
+                      onSubmitted: (_) {
+                        fetchPreferences();
+                      },
+                      onChanged: (username) {
+                        usernameController.text = username;
+                      },
+                      decoration: InputDecoration(labelText: 'User Name'),
+                    ),
+              if(username!=null)
+                if(username!.isEmpty)
+                  if(Platform.isAndroid)
+                    TextField(
+                      controller: passwordController,
+                      focusNode: passwordFocus,
+                      textInputAction: TextInputAction.go,
+                      onSubmitted: (_) {
+                        // Perform the login action when the "Done" key is pressed
+                        _forgiveFocusToFields();
+                        loginUser(context);
+                        fetchPreferences();
+                      },
+                      obscureText: true,
+                      decoration: InputDecoration(labelText: 'Password'),
+                    ),
+              if(username!=null)
+                if(username!.isEmpty)
+                  if(Platform.isIOS)
+                    TextField(
+                      focusNode: passwordFocus,
+                      textInputAction: TextInputAction.go,
+                      onSubmitted: (_) {
+                        // Perform the login action when the "Done" key is pressed
+                        _forgiveFocusToFields();
+                        loginUser(context);
+                        fetchPreferences();
+                      },
+                      onChanged: (password) {
+                        passwordController.text = password;
+                      },
+                      obscureText: true,
+                      decoration: InputDecoration(labelText: 'Password'),
+                    ),
               if(username!=null)
                 if(username!.isEmpty)
                   SizedBox(height: 20),

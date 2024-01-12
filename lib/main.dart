@@ -1,5 +1,7 @@
 import 'dart:math';
+import 'dart:io' show Platform;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dynamic_color/dynamic_color.dart';
@@ -27,17 +29,42 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Brightness currentBrightness = MediaQuery.of(context).platformBrightness;
+    bool isIOS = Theme.of(context).platform == TargetPlatform.iOS;
 
     return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme) {
       return MaterialApp(
         title: 'Story Trail',
-        theme: ThemeData(
-          useMaterial3: true, colorScheme: lightColorScheme ?? _defaultLightColorScheme.copyWith(background: lightColorScheme?.primaryContainer ?? Colors.white),
-          scaffoldBackgroundColor: lightColorScheme?.primaryContainer ?? Colors.white
+        theme: isIOS
+            ? ThemeData(
+          cupertinoOverrideTheme: CupertinoThemeData(
+            brightness: currentBrightness == Brightness.dark
+                ? Brightness.dark
+                : Brightness.light,
+            // Add iOS-specific styles here
+            primaryColor: Colors.blue, // Adjust iOS primary color
+            barBackgroundColor: currentBrightness == Brightness.dark
+                ? Colors.grey[900] // Adjust background color for dark mode
+                : null, // Use default background color for light mode
+            // Add more iOS-specific styles here
+          ),
+        )
+            : ThemeData(
+          useMaterial3: true,
+          colorScheme: lightColorScheme ??
+              _defaultLightColorScheme.copyWith(
+                  background: lightColorScheme?.primaryContainer ??
+                      Colors.white),
+          scaffoldBackgroundColor:
+          lightColorScheme?.primaryContainer ?? Colors.white,
         ),
         darkTheme: ThemeData(
-          useMaterial3: true, colorScheme: darkColorScheme ?? _defaultDarkColorScheme.copyWith(background: darkColorScheme?.primaryContainer ?? Colors.black),
-          scaffoldBackgroundColor: darkColorScheme?.secondaryContainer ?? Colors.black
+          useMaterial3: true,
+          colorScheme: darkColorScheme ??
+              _defaultDarkColorScheme.copyWith(
+                  background: darkColorScheme?.primaryContainer ??
+                      Colors.black),
+          scaffoldBackgroundColor:
+          darkColorScheme?.secondaryContainer ?? Colors.black,
         ),
         themeMode: currentBrightness == Brightness.dark
             ? ThemeMode.dark
@@ -127,6 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Size size = MediaQuery.of(context).size;
     int currentPageIndex = 0;
     Color color_sec = Theme.of(context).colorScheme.secondaryContainer;
+    bool isIOS = Theme.of(context).platform == TargetPlatform.iOS;
 
     // Set the system UI overlay style in the main build method
     SystemChrome.setSystemUIOverlayStyle(
@@ -163,8 +191,8 @@ class _MyHomePageState extends State<MyHomePage> {
             });
           },
           height: 70,
-          backgroundColor: color_sec,
-          surfaceTintColor: color_sec,
+          backgroundColor: isIOS ? null : color_sec,
+          surfaceTintColor: isIOS ? null : color_sec,
           indicatorColor: Theme.of(context).colorScheme.onPrimary,
           selectedIndex: currentPageIndex,
           destinations: const <Widget>[
