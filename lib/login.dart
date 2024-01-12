@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,6 +27,38 @@ final TextEditingController passwordController = TextEditingController();
 class LoginScreen extends StatelessWidget {
   final FocusNode usernameFocus = FocusNode();
   final FocusNode passwordFocus = FocusNode();
+
+  Future<bool> checkInternetConnection() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    return connectivityResult != ConnectivityResult.none;
+  }
+
+  Widget buildNoInternetUI(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.signal_wifi_off,
+          size: 96.0,
+          color: Theme.of(context).colorScheme.error,
+        ),
+        SizedBox(height: 16.0),
+        Text(
+          "No Internet Connection",
+          style: TextStyle(
+            fontSize: 20.0,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 8.0),
+        Text(
+          "Please check your internet connection and try again.",
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
 
   LoginScreen({super.key});
   Future<void> logoutUser(BuildContext context) async {
@@ -164,36 +197,33 @@ class LoginScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                'assets/story_trail.png', // Replace with the actual path to your app icon
-                height: 100, // Adjust the height as needed
-                width: 100,  // Adjust the width as needed
-              ),
-              SizedBox(height: 16), // Add some space between the icon and the TextField
-
-              if(username!=null)
-                if(username!.isEmpty)
-                  if(Platform.isAndroid)
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'assets/story_trail.png',
+                  height: 100,
+                  width: 100,
+                ),
+                SizedBox(height: 16),
+                if (username != null && username!.isEmpty)
+                  if (Platform.isAndroid)
                     TextField(
                       controller: usernameController,
                       focusNode: usernameFocus,
-                      textInputAction: TextInputAction.next,  // Set the action to "Next"
+                      textInputAction: TextInputAction.next,
                       onSubmitted: (_) {
-                        // Focus on the password field when the "Next" key is pressed
                         FocusScope.of(context).requestFocus(passwordFocus);
                         fetchPreferences();
                       },
                       decoration: InputDecoration(labelText: 'User Name'),
                     ),
-              if(username!=null)
-                if(username!.isEmpty)
-                  if(Platform.isIOS)
+                if (username != null && username!.isEmpty)
+                  if (Platform.isIOS)
                     TextField(
                       focusNode: usernameFocus,
-                      textInputAction: TextInputAction.next,  // Set the action to "Next"
+                      textInputAction: TextInputAction.next,
                       onSubmitted: (_) {
                         fetchPreferences();
                       },
@@ -202,15 +232,13 @@ class LoginScreen extends StatelessWidget {
                       },
                       decoration: InputDecoration(labelText: 'User Name'),
                     ),
-              if(username!=null)
-                if(username!.isEmpty)
-                  if(Platform.isAndroid)
+                if (username != null && username!.isEmpty)
+                  if (Platform.isAndroid)
                     TextField(
                       controller: passwordController,
                       focusNode: passwordFocus,
                       textInputAction: TextInputAction.go,
                       onSubmitted: (_) {
-                        // Perform the login action when the "Done" key is pressed
                         _forgiveFocusToFields();
                         loginUser(context);
                         fetchPreferences();
@@ -218,14 +246,12 @@ class LoginScreen extends StatelessWidget {
                       obscureText: true,
                       decoration: InputDecoration(labelText: 'Password'),
                     ),
-              if(username!=null)
-                if(username!.isEmpty)
-                  if(Platform.isIOS)
+                if (username != null && username!.isEmpty)
+                  if (Platform.isIOS)
                     TextField(
                       focusNode: passwordFocus,
                       textInputAction: TextInputAction.go,
                       onSubmitted: (_) {
-                        // Perform the login action when the "Done" key is pressed
                         _forgiveFocusToFields();
                         loginUser(context);
                         fetchPreferences();
@@ -236,11 +262,9 @@ class LoginScreen extends StatelessWidget {
                       obscureText: true,
                       decoration: InputDecoration(labelText: 'Password'),
                     ),
-              if(username!=null)
-                if(username!.isEmpty)
+                if (username != null && username!.isEmpty)
                   SizedBox(height: 20),
-              if(username!=null)
-                if(username!.isEmpty)
+                if (username != null && username!.isEmpty)
                   ElevatedButton(
                     onPressed: () {
                       _giveFocusToFields();
@@ -258,8 +282,54 @@ class LoginScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-              if(username!=null)
-                if(username!.isNotEmpty)
+                if (username != null && username!.isNotEmpty)
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        username!,
+                        style: TextStyle(
+                          fontFamily: 'mplus_rounded1c',
+                          fontWeight: FontWeight.w400,
+                          fontSize: 30,
+                        ),
+                      ),
+                      Text(
+                        "Welcome to Story Trail",
+                        style: TextStyle(
+                          fontFamily: 'caveat',
+                          fontWeight: FontWeight.w400,
+                          fontSize: 40,
+                        ),
+                      ),
+                    ],
+                  ),
+                if (username == null)
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.location_off,
+                        size: 96.0,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                      SizedBox(height: 16.0),
+                      Text(
+                        "Location Permission Required",
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 8.0),
+                      Text(
+                        "To use this app, please grant location permission.",
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                if (username != null && username!.isNotEmpty)
                   ElevatedButton(
                     onPressed: () async {
                       username = '';
@@ -271,14 +341,6 @@ class LoginScreen extends StatelessWidget {
                         ),
                       );
                       fetchPreferences();
-
-                      // Refresh for page reconstruction on back
-                      // final value = await Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //       builder: (context) => MyHomePage(title: '',)
-                      //   ),
-                      // );
 
                       Navigator.pushReplacement(
                         context,
@@ -296,57 +358,8 @@ class LoginScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-              if(username!=null)
-                if(username!.isNotEmpty)
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(username!,
-                        style: TextStyle(
-                          fontFamily: 'mplus_rounded1c',
-                          fontWeight: FontWeight.w400,
-                          fontSize: 30,
-                        ),
-                      ),
-                      Text(
-                        "Welcome to Story Trail",
-                        style: TextStyle(
-                          fontFamily: 'mplus_rounded1c',
-                          fontWeight: FontWeight.w400,
-                          fontSize: 30,
-                        ),
-                      ),
-
-                    ]
-                  ),
-
-              if(username==null)
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Large centered icon and explanatory text
-                    Icon(
-                      Icons.location_off,
-                      size: 96.0,
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                    SizedBox(height: 16.0),
-                    Text(
-                      "Location Permission Required",
-                      style: TextStyle(
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 8.0),
-                    Text(
-                      "To use this app, please grant location permission.",
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

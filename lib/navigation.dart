@@ -157,14 +157,35 @@ class MapSampleState extends State<MapSample> {
               Column(
                 children: [
                   // Large centered icon and explanatory text
-                  Icon(
-                    Icons.location_off,
-                    size: 96.0,
-                    color: Theme.of(context).colorScheme.error,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.location_off,
+                        size: 96.0,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                      SizedBox(height: 16.0),
+                      Text(
+                        "/",
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 16.0),
+                      Icon(
+                        Icons.downloading,
+                        size: 96.0,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ],
                   ),
+
                   SizedBox(height: 16.0),
                   Text(
-                    "Location Permission Required",
+                    "Location Permission Required \n Map Loading",
                     style: TextStyle(
                       fontSize: 20.0,
                       fontWeight: FontWeight.bold,

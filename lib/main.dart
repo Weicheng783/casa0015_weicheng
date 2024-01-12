@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'checkInternet.dart';
 import 'mainHelpers.dart';
 import 'package:location/location.dart';
 import 'mapHelper.dart';
@@ -291,6 +292,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               ],
                             ),
                           ),
+                        InternetStatusButton(),
                         if (loggedInUsername.isEmpty)
                           ElevatedButton(
                             onPressed: () {
@@ -338,7 +340,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(10.0), // Set the corner radius as needed
                             child: SizedBox(
-                              height: size.height * 0.45,
+                              height: size.height * 0.39,
                               width: size.width * 0.95,
                               child: MapSample(), // Your existing content, replace with Text if needed
                             ),
