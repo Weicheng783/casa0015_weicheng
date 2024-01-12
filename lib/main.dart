@@ -3,9 +3,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'mainHelpers.dart';
 import 'package:location/location.dart';
+import 'mapHelper.dart';
 import 'navigation.dart';
 import 'login.dart'; // Import the login screen file
 
@@ -294,6 +296,26 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ),
 
+                        // Details card
+                        if (tappedMarkerIds.isNotEmpty)
+                          Card(
+                            elevation: 5.0,
+                            margin: EdgeInsets.all(16.0),
+                            child: Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  for (MarkerId tappedMarkerId in tappedMarkerIds)
+                                  // Find the corresponding EntryMarker using the tappedMarkerId
+                                    if (entryMarkers.any((marker) => marker.toMarker().markerId == tappedMarkerId))
+                                      EntryDetailsWidget(entryMarker: entryMarkers.firstWhere((marker) => marker.toMarker().markerId == tappedMarkerId)),
+                                  // ... (add more details as needed)
+                                ],
+                              ),
+                            ),
+                          ),
+
                       ],
                     )
                   ],
@@ -312,4 +334,26 @@ class _MyHomePageState extends State<MyHomePage> {
 void logoutUser() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.setString('username', '');
+}
+
+class EntryDetailsWidget extends StatelessWidget {
+  final EntryMarker entryMarker;
+
+  EntryDetailsWidget({required this.entryMarker});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Entry ID: ${entryMarker.toMarker().markerId.value}'),
+        Text('Latitude: ${entryMarker.latitude}'),
+        Text('Longitude: ${entryMarker.longitude}'),
+        Text('Time: ${entryMarker.time}'),
+        Text('Date: ${entryMarker.date}'),
+        Text('Content: ${entryMarker.content}'),
+        // Add more details as needed
+      ],
+    );
+  }
 }

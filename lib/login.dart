@@ -109,7 +109,13 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Trail Account'),
+        title: Row(
+          children: [
+            Icon(Icons.perm_contact_cal), // Replace with the actual icon you want
+            SizedBox(width: 8), // Adjust the space between the icon and text
+            Text('My Trail Account'),
+          ],
+        ),
         backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
       ),
       resizeToAvoidBottomInset: false,

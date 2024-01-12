@@ -1,7 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:http/http.dart' as http;
+
+import 'mapHelper.dart';
 
 class LocationService {
   static Future<LocationData> getLocation() async {
@@ -64,6 +69,16 @@ class LocationInfo extends StatelessWidget {
   }
 }
 
+class TappedMarkerInfo {
+  final EntryMarker entryMarker;
+
+  TappedMarkerInfo({required this.entryMarker});
+}
+
+List<EntryMarker> entryMarkers = [];
+Set<MarkerId> tappedMarkerIds = Set();
+Set<TappedMarkerInfo> tappedMarkerInfos = Set();
+
 class MapSampleState extends State<MapSample> {
   late GoogleMapController mapController;
   LocationData? currentLocation;
@@ -81,6 +96,7 @@ class MapSampleState extends State<MapSample> {
 
       if (locationPermissionGranted) {
         await _updateLocation();
+        await _fetchEntries();
       }
     } catch (e) {
       print('Error initializing map: $e');
@@ -95,6 +111,32 @@ class MapSampleState extends State<MapSample> {
       }
     } catch (e) {
       print('Error updating location: $e');
+    }
+  }
+
+  Future<void> _fetchEntries() async {
+    try {
+      // Replace 'your_server_url/getEntry.php' with the actual URL of your getEntry.php script
+      final response = await http.post(
+        Uri.parse('https://weicheng.app/flutter/getEntry.php'),
+        body: {'username': 'your_logged_in_username', 'user_id': 'your_logged_in_user_id'},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> entriesData = json.decode(response.body);
+
+        setState(() {
+          entryMarkers = entriesData.map((entry) {
+            EntryMarker marker = EntryMarker.fromMap(entry);
+            print('Entry ID: ${marker.entryId}, Latitude: ${marker.latitude}, Longitude: ${marker.longitude}');
+            return marker;
+          }).toList();
+        });
+      } else {
+        print('Failed to fetch entries: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching entries: $e');
     }
   }
 
@@ -147,244 +189,7 @@ class MapSampleState extends State<MapSample> {
                   child: GoogleMap(
                     onMapCreated: (controller) {
                       mapController = controller;
-                      if(currentBrightness == Brightness.dark)
-                        mapController!.setMapStyle('''
-                      [
-                            {
-                              "elementType": "geometry",
-                              "stylers": [
-                                {
-                                  "color": "#1d2c4d"
-                                }
-                              ]
-                            },
-                            {
-                              "elementType": "labels.text.fill",
-                              "stylers": [
-                                {
-                                  "color": "#8ec3b9"
-                                }
-                              ]
-                            },
-                            {
-                              "elementType": "labels.text.stroke",
-                              "stylers": [
-                                {
-                                  "color": "#1a3646"
-                                }
-                              ]
-                            },
-                            {
-                              "featureType": "administrative.country",
-                              "elementType": "geometry.stroke",
-                              "stylers": [
-                                {
-                                  "color": "#4b6878"
-                                }
-                              ]
-                            },
-                            {
-                              "featureType": "administrative.land_parcel",
-                              "elementType": "labels.text.fill",
-                              "stylers": [
-                                {
-                                  "color": "#64779e"
-                                }
-                              ]
-                            },
-                            {
-                              "featureType": "administrative.province",
-                              "elementType": "geometry.stroke",
-                              "stylers": [
-                                {
-                                  "color": "#4b6878"
-                                }
-                              ]
-                            },
-                            {
-                              "featureType": "landscape.man_made",
-                              "elementType": "geometry.stroke",
-                              "stylers": [
-                                {
-                                  "color": "#334e87"
-                                }
-                              ]
-                            },
-                            {
-                              "featureType": "landscape.natural",
-                              "elementType": "geometry",
-                              "stylers": [
-                                {
-                                  "color": "#023e58"
-                                }
-                              ]
-                            },
-                            {
-                              "featureType": "poi",
-                              "elementType": "geometry",
-                              "stylers": [
-                                {
-                                  "color": "#283d6a"
-                                }
-                              ]
-                            },
-                            {
-                              "featureType": "poi",
-                              "elementType": "labels.text.fill",
-                              "stylers": [
-                                {
-                                  "color": "#6f9ba5"
-                                }
-                              ]
-                            },
-                            {
-                              "featureType": "poi",
-                              "elementType": "labels.text.stroke",
-                              "stylers": [
-                                {
-                                  "color": "#1d2c4d"
-                                }
-                              ]
-                            },
-                            {
-                              "featureType": "poi.park",
-                              "elementType": "geometry.fill",
-                              "stylers": [
-                                {
-                                  "color": "#023e58"
-                                }
-                              ]
-                            },
-                            {
-                              "featureType": "poi.park",
-                              "elementType": "labels.text.fill",
-                              "stylers": [
-                                {
-                                  "color": "#3C7680"
-                                }
-                              ]
-                            },
-                            {
-                              "featureType": "road",
-                              "elementType": "geometry",
-                              "stylers": [
-                                {
-                                  "color": "#304a7d"
-                                }
-                              ]
-                            },
-                            {
-                              "featureType": "road",
-                              "elementType": "labels.text.fill",
-                              "stylers": [
-                                {
-                                  "color": "#98a5be"
-                                }
-                              ]
-                            },
-                            {
-                              "featureType": "road",
-                              "elementType": "labels.text.stroke",
-                              "stylers": [
-                                {
-                                  "color": "#1d2c4d"
-                                }
-                              ]
-                            },
-                            {
-                              "featureType": "road.highway",
-                              "elementType": "geometry",
-                              "stylers": [
-                                {
-                                  "color": "#2c6675"
-                                }
-                              ]
-                            },
-                            {
-                              "featureType": "road.highway",
-                              "elementType": "geometry.stroke",
-                              "stylers": [
-                                {
-                                  "color": "#255763"
-                                }
-                              ]
-                            },
-                            {
-                              "featureType": "road.highway",
-                              "elementType": "labels.text.fill",
-                              "stylers": [
-                                {
-                                  "color": "#b0d5ce"
-                                }
-                              ]
-                            },
-                            {
-                              "featureType": "road.highway",
-                              "elementType": "labels.text.stroke",
-                              "stylers": [
-                                {
-                                  "color": "#023e58"
-                                }
-                              ]
-                            },
-                            {
-                              "featureType": "transit",
-                              "elementType": "labels.text.fill",
-                              "stylers": [
-                                {
-                                  "color": "#98a5be"
-                                }
-                              ]
-                            },
-                            {
-                              "featureType": "transit",
-                              "elementType": "labels.text.stroke",
-                              "stylers": [
-                                {
-                                  "color": "#1d2c4d"
-                                }
-                              ]
-                            },
-                            {
-                              "featureType": "transit.line",
-                              "elementType": "geometry.fill",
-                              "stylers": [
-                                {
-                                  "color": "#283d6a"
-                                }
-                              ]
-                            },
-                            {
-                              "featureType": "transit.station",
-                              "elementType": "geometry",
-                              "stylers": [
-                                {
-                                  "color": "#3a4762"
-                                }
-                              ]
-                            },
-                            {
-                              "featureType": "water",
-                              "elementType": "geometry",
-                              "stylers": [
-                                {
-                                  "color": "#0e1626"
-                                }
-                              ]
-                            },
-                            {
-                              "featureType": "water",
-                              "elementType": "labels.text.fill",
-                              "stylers": [
-                                {
-                                  "color": "#4e6d70"
-                                }
-                              ]
-                            }
-                          ]
-                      ''');
-                      if(currentBrightness != Brightness.dark)
-                        mapController!.setMapStyle('''[]''');
+                      setMapTheme(mapController, currentBrightness == Brightness.dark);
                       updateMapCamera(); // Center the map initially
                     },
                     initialCameraPosition: CameraPosition(
@@ -398,6 +203,33 @@ class MapSampleState extends State<MapSample> {
                     tiltGesturesEnabled: true,
                     zoomGesturesEnabled: true,
                     scrollGesturesEnabled: true,
+                    // markers: {
+                    //   const Marker(
+                    //     markerId: MarkerId('Sydney'),
+                    //     position: LatLng(51.536215, -0.011637),
+                    //   ),
+                    // },
+                    markers: Set.from(entryMarkers.map((marker) {
+                      return Marker(
+                        markerId: MarkerId(marker.entryId.toString()),
+                        position: LatLng(double.parse(marker.latitude), double.parse(marker.longitude)),
+                        onTap: () {
+                          print(marker.entryId.toString());
+                          // Update state to show details for the tapped marker
+                          setState(() {
+                            tappedMarkerIds.add(MarkerId(marker.entryId.toString()));
+                            tappedMarkerInfos.add(TappedMarkerInfo(entryMarker: marker));
+                          });
+                        },
+                      );
+                    })),
+                    onTap: (_) {
+                      // Clear tapped markers when the map is tapped
+                      setState(() {
+                        tappedMarkerIds.clear();
+                        tappedMarkerInfos.clear();
+                      });
+                    },
                   ),
                 ),
               ),
