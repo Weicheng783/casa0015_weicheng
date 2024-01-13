@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:story.trail/userDetails.dart';
 import 'checkInternet.dart';
 import 'mainHelpers.dart';
 import 'package:location/location.dart';
@@ -181,12 +182,17 @@ class _MyHomePageState extends State<MyHomePage> {
             setState(() {
               currentPageIndex = index;
               // Add logic for LoginScreen navigation here
-              if (currentPageIndex == 1) {
+              if (currentPageIndex == 2) {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => LoginScreen(),
                   ),
+                );
+              }else if(currentPageIndex == 1){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => UserDetailsPage(username: loggedInUsername,)),
                 );
               }
             });
@@ -202,6 +208,11 @@ class _MyHomePageState extends State<MyHomePage> {
               icon: Icon(Icons.home_outlined),
               label: 'Home',
             ),
+            NavigationDestination(
+              selectedIcon: Icon(Icons.perm_contact_cal),
+              icon: Icon(Icons.perm_contact_cal),
+              label: 'My Trail',
+            ),
             // NavigationDestination(
             //   icon: Badge(child: Icon(Icons.notifications_sharp)),
             //   label: 'Notifications',
@@ -214,8 +225,8 @@ class _MyHomePageState extends State<MyHomePage> {
             //   label: 'Messages',
             // ),
             NavigationDestination(
-              icon: Icon(Icons.perm_contact_cal),
-              label: 'My Trail',
+              icon: Icon(Icons.account_circle),
+              label: 'Account',
             ),
           ],
         ),

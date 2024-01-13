@@ -64,12 +64,12 @@ class _InternetStatusButtonState extends State<InternetStatusButton> {
             isOnline
                 ? canReachServer
                 ? Icons.wifi
-                : Icons.signal_wifi_off
+                : Icons.private_connectivity_outlined
                 : Icons.signal_wifi_off,
             color: isOnline
                 ? canReachServer
                 ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.error
+                : Theme.of(context).colorScheme.secondary
                 : Theme.of(context).colorScheme.error,
           ),
           SizedBox(width: 8),
@@ -77,13 +77,13 @@ class _InternetStatusButtonState extends State<InternetStatusButton> {
             isOnline
                 ? canReachServer
                 ? 'Server Connected'
-                : 'WiFi connected, server unreachable'
+                : 'Server unreachable or no login yet'
                 : 'No WiFi Connection',
             style: TextStyle(
               color: isOnline
                   ? canReachServer
                   ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.error
+                  : Theme.of(context).colorScheme.secondary
                   : Theme.of(context).colorScheme.error,
             ),
           ),
