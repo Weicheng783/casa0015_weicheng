@@ -114,10 +114,10 @@ class MapSampleState extends State<MapSample> {
       return !hasExploredOrOwnedEntry(userHistoryPub, entry.entryId);
     }).toList();
 
-    print("unexplored entries empticity: $unexploredEntries");
     if (unexploredEntries.isNotEmpty) {
       // Calculate distances to unexplored entries
       unexploredEntries.forEach((entry) {
+        print("unexplored entries id: "+entry.entryId);
         entry.distanceToUser = calculateDistance(
           userLocation.latitude!,
           userLocation.longitude!,
@@ -195,7 +195,7 @@ class MapSampleState extends State<MapSample> {
         marker.distanceToUser = distance; // Update the distance for each marker
 
         if (distance <= 50 && distance != 0.00) {
-          if (!isNearby) {
+          if (!isNearby && !hasExploredOrOwnedEntry(userHistoryPub, marker.entryId)) {
             // Trigger vibration
             Vibration.vibrate(duration: 500);
 
@@ -205,6 +205,10 @@ class MapSampleState extends State<MapSample> {
 
             setState(() {
               isNearby = true;
+            });
+          }else{
+            setState(() {
+              isNearby = false;
             });
           }
           return;
@@ -305,11 +309,12 @@ class MapSampleState extends State<MapSample> {
     Brightness currentBrightness = MediaQuery.of(context).platformBrightness;
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: Container(
         alignment: Alignment.center,
-        // padding: EdgeInsets.all(16.0),
+        // padding: EdgeInsets.all(10.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             if (!locationPermissionGranted || currentLocation == null)
@@ -444,7 +449,7 @@ class MapSampleState extends State<MapSample> {
               ),
 
               NavigationHelper.buildEntryDetailsCard(tappedMarkerIds, entryMarkers),
-              if (isNearby)
+              if (isNearby && (username!=''))
                 ElevatedButton(
                   onPressed: () {
                     // Show congratulations stuff here
@@ -500,7 +505,7 @@ class MapSampleState extends State<MapSample> {
   }
 }
 
-// Check if the user has explored the entry
+// Check if the user has explored or owned the entry
 bool hasExploredOrOwnedEntry(List<Map<String, dynamic>> userHistory, String entryId) {
   print('User History: $userHistory');
 

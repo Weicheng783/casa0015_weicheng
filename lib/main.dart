@@ -346,7 +346,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         //   },
                         //   child: Icon(Icons.refresh),
                         // ),
-                        Container(
+                        SizedBox(
                           width: size.width * 0.95,
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(10.0),
@@ -359,7 +359,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 // UserDetailsPage().showDetails(context);
                               },
                               child: SizedBox(
-                                height: size.height * 0.7,
+                                height: size.height,
                                 width: size.width * 0.95,
                                 child: MapSample(),
                               ),

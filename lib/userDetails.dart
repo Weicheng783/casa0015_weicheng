@@ -1,9 +1,8 @@
-import 'dart:io' show Platform;
-
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'dart:io' show Platform;
 
 import 'mapHelper.dart';
 
@@ -23,7 +22,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   PageController _pageController = PageController();
   GoogleMapController? _mapController;
   int _currentPageIndex = 0;
-  bool showCreatedEntries = true;
+  bool showCreatedEntries = false;
   DateTime? startDate;
   DateTime? endDate;
 
@@ -80,8 +79,12 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         entry.lat = entryDetails['lat'] ?? "0.0";
         entry.time = entryDetails['time'] ?? "";
         entry.date = entryDetails['date'] ?? "";
+        entry.content = entryDetails['content'] ?? "";
+        entry.comment = entryDetails['comment'] ?? "";
         entry.authorUsername = entryDetails['author_username'] ?? "";
         entry.authorUserId = entryDetails['author_user_id'] ?? "";
+        entry.exploreUsername = entryDetails['explore_username'] ?? "";
+        entry.exploreUserId = entryDetails['explore_user_id'] ?? "";
       });
     } else {
       // Handle error
@@ -131,11 +134,11 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Row(
-          children: [
-            Icon(Icons.my_library_books),
-            SizedBox(width: 8),
-            Text("My Trail Adventure"),
-          ]
+            children: [
+              Icon(Icons.my_library_books),
+              SizedBox(width: 8),
+              Text("My Trail Adventure"),
+            ]
         ),
         backgroundColor: Platform.isIOS ? null : Theme.of(context).colorScheme.secondaryContainer,
         actions: [
@@ -163,7 +166,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Show Created Entries"),
+                  Text("Show Explored Entries"),
                   Switch(
                     value: showCreatedEntries,
                     onChanged: (value) {
@@ -173,7 +176,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                       });
                     },
                   ),
-                  Text("Show Explored Entries"),
+                  Text("Show Created Entries"),
                 ],
               ),
               SizedBox(height: 10),
@@ -206,6 +209,8 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                   child: GoogleMap(
                     onMapCreated: (controller) {
                       _mapController = controller;
+                      // Assuming setMapTheme and moveCameraToCurrentPoint methods are correctly implemented
+                      // Set map theme based on brightness
                       setMapTheme(controller, currentBrightness == Brightness.dark);
                       moveCameraToCurrentPoint();
                     },
@@ -223,8 +228,8 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                 ),
               SizedBox(height: 20),
               if (displayedEntries.isNotEmpty)
-                Container(
-                  height: 300, // Set the height as needed
+                SizedBox(
+                  height: 1000, // Set the height as needed
                   child: PageView.builder(
                     controller: _pageController,
                     itemCount: displayedEntries.length,
@@ -235,32 +240,44 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                       moveCameraToCurrentPoint();
                     },
                     itemBuilder: (context, index) {
-                      return Card(
-                        // Your card widget displaying all information for one entry
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Memory #${index + 1}",
-                                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                              ),
-                              Divider(),
-                              Text("Date Created: ${entriesCreated[index].date}"),
-                              Text("Time Created: ${entriesCreated[index].time}"),
-                              Text("Date Explored: ${entriesExplored[index].date}"),
-                              Text("Time Explored: ${entriesExplored[index].time}"),
-                              Text("Latitude: ${displayedEntries[index].lat}"),
-                              Text("Longitude: ${displayedEntries[index].long}"),
-                              Text("Content: ${displayedEntries[index].content}"),
-                              Text("Comment: ${displayedEntries[index].comment}"),
-                              Text("Author Username: ${displayedEntries[index].authorUsername}"),
-                              Text("Author User ID: ${displayedEntries[index].authorUserId}"),
-                            ],
+                      if (index < 0 || index >= displayedEntries.length) {
+                        // Handle index out of bounds error, return an empty widget or null
+                        print("index index index:" + index.toString());
+                        return Container(); // Return an empty container for now
+                      } else {
+                        return Card(
+                          // Your card widget displaying all information for one entry
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Memory #${index + 1}",
+                                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                                ),
+                                Divider(),
+                                Text("Date Created: ${entriesCreated[index].date}"),
+                                Text("Time Created: ${entriesCreated[index].time}"),
+                                if (!showCreatedEntries)
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text("Date Explored: ${entriesExplored[index].date}"),
+                                      Text("Time Explored: ${entriesExplored[index].time}"),
+                                    ],
+                                  ),
+                                Text("Latitude: ${displayedEntries[index].lat}"),
+                                Text("Longitude: ${displayedEntries[index].long}"),
+                                Text("Content: ${displayedEntries[index].content}"),
+                                Text("Comment: ${displayedEntries[index].comment}"),
+                                Text("Author Username: ${displayedEntries[index].authorUsername}"),
+                                Text("Author User ID: ${displayedEntries[index].authorUserId}"),
+                              ],
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      }
                     },
                   ),
                 ),
@@ -309,6 +326,8 @@ class MapEntry {
   String comment;
   String authorUsername;
   String authorUserId;
+  String exploreUsername; // Added explorer username
+  String exploreUserId;   // Added explorer user ID
 
   MapEntry.fromMap(Map<String, dynamic> map)
       : entryId = map['entry_id'] ?? "",
@@ -318,6 +337,8 @@ class MapEntry {
         date = map['date'] ?? "",
         content = map['content'] ?? "",
         comment = map['comment'] ?? "",
-        authorUsername = "",
-        authorUserId = "";
+        authorUsername = map['author_username'] ?? "",
+        authorUserId = map['author_user_id'] ?? "",
+        exploreUsername = map['explore_username'] ?? "", // Added explorer username
+        exploreUserId = map['explore_user_id'] ?? "";   // Added explorer user ID
 }
