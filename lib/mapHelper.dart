@@ -251,6 +251,7 @@ class EntryMarker {
   final String content;
   final String authorUsername;
   final String authorUserId;
+  double distanceToUser = 0.0; // Add this field
 
   EntryMarker({
     required this.entryId,
@@ -266,8 +267,8 @@ class EntryMarker {
   factory EntryMarker.fromMap(Map<String, dynamic> map) {
     return EntryMarker(
       entryId: map['entry_id'],
-      latitude: map['lat'],  // Ensure latitude is parsed as double
-      longitude: map['long'],  // Ensure longitude is parsed as double
+      latitude: map['lat'],
+      longitude: map['long'],
       time: map['time'],
       date: map['date'],
       content: map['content'],
@@ -282,19 +283,8 @@ class EntryMarker {
       position: LatLng(double.parse(latitude), double.parse(longitude)),
       infoWindow: InfoWindow(
         title: 'Entry #$entryId',
-        snippet: 'Author: $authorUsername\nContent: $content',
+        snippet: 'Author: $authorUsername\nContent: $content\nDistance to User: ${distanceToUser.toStringAsFixed(2)} meters',
       ),
-      // icon: BitmapDescriptor.defaultMarkerWithHue(
-      //   exploredUserId != 0 ? BitmapDescriptor.hueGreen : BitmapDescriptor.hueRose,
-      // ),
     );
   }
-
-  // Marker toMarker() {
-  //   return Marker(
-  //     markerId: MarkerId(entryId.toString()),
-  //     position: LatLng(double.parse(latitude), double.parse(longitude)),
-  //   );
-  // }
-
 }

@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +9,8 @@ import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:story.trail/login.dart';
+import 'package:vibration/vibration.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 import 'main.dart';
 import 'mapHelper.dart';
@@ -88,12 +92,148 @@ class MapSampleState extends State<MapSample> {
   bool locationPermissionGranted = false;
 
   String loggedInUsername = '';
+  bool isNearby = false;
+  EntryMarker? nearestUnexploredEntry;
+  bool autoFindNearestEnabled = false; // Set the default value as needed
 
   @override
   void initState() {
     super.initState();
     _initMap();
     _fetchLoggedInUsername();
+    _checkNearbyMarkers();
+    _findNearestUnexploredEntry();
+  }
+
+  Future<void> _findNearestUnexploredEntry() async {
+    // Get the user's location
+    LocationData userLocation = await LocationService.getLocation();
+
+    // Filter unexplored entries
+    List<EntryMarker> unexploredEntries = entryMarkers.where((entry) {
+      return !hasExploredOrOwnedEntry(userHistoryPub, entry.entryId);
+    }).toList();
+
+    print("unexplored entries empticity: $unexploredEntries");
+    if (unexploredEntries.isNotEmpty) {
+      // Calculate distances to unexplored entries
+      unexploredEntries.forEach((entry) {
+        entry.distanceToUser = calculateDistance(
+          userLocation.latitude!,
+          userLocation.longitude!,
+          double.parse(entry.latitude),
+          double.parse(entry.longitude),
+        );
+      });
+
+      // Find the nearest unexplored entry
+      nearestUnexploredEntry = unexploredEntries.reduce((a, b) =>
+      a.distanceToUser < b.distanceToUser ? a : b);
+
+      // Automatically set the map scale factor based on distance
+      double zoomLevel = _calculateZoomLevel(nearestUnexploredEntry!.distanceToUser);
+      print("zoomlevel: $zoomLevel");
+
+      // Update the map camera to show both user and entry
+      mapController.animateCamera(
+        CameraUpdate.newLatLngBounds(
+          LatLngBounds(
+            southwest: LatLng(
+              min(userLocation.latitude!, double.parse(nearestUnexploredEntry!.latitude)),
+              min(userLocation.longitude!, double.parse(nearestUnexploredEntry!.longitude)),
+            ),
+            northeast: LatLng(
+              max(userLocation.latitude!, double.parse(nearestUnexploredEntry!.latitude)),
+              max(userLocation.longitude!, double.parse(nearestUnexploredEntry!.longitude)),
+            ),
+          ),
+          50.0, // Padding in pixels
+        ),
+      );
+
+      // mapController.animateCamera(
+      //   CameraUpdate.zoomTo(zoomLevel),
+      // );
+
+      // Automatically display information for the selected entry
+      setState(() {
+        tappedMarkerIds.clear();
+        tappedMarkerInfos.clear();
+        tappedMarkerIds.add(MarkerId(nearestUnexploredEntry!.entryId));
+        tappedMarkerInfos.add(TappedMarkerInfo(entryMarker: nearestUnexploredEntry!));
+      });
+    }
+  }
+
+  double _calculateZoomLevel(double distance) {
+    // You can customize this formula based on your preferences
+    const double maxDistance = 5000; // Maximum distance in meters for maximum zoom
+    const double minZoom = 10.0; // Minimum zoom level
+    const double maxZoom = 18.0; // Maximum zoom level
+
+    double zoomLevel =
+        maxZoom - ((distance / maxDistance) * (maxZoom - minZoom)).clamp(0.0, maxZoom - minZoom);
+
+    return zoomLevel;
+  }
+
+  Future<void> _checkNearbyMarkers() async {
+    Timer.periodic(Duration(seconds: 10), (timer) async {
+      LocationData userLocation = await LocationService.getLocation();
+      if (autoFindNearestEnabled) {
+        _findNearestUnexploredEntry();
+      }
+
+      for (EntryMarker marker in entryMarkers) {
+        double distance = calculateDistance(
+          userLocation.latitude!,
+          userLocation.longitude!,
+          double.parse(marker.latitude),
+          double.parse(marker.longitude),
+        );
+
+        marker.distanceToUser = distance; // Update the distance for each marker
+
+        if (distance <= 50 && distance != 0.00) {
+          if (!isNearby) {
+            // Trigger vibration
+            Vibration.vibrate(duration: 500);
+
+            // Trigger sound
+            AudioPlayer audioPlayer = AudioPlayer();
+            // await audioPlayer.play(Uri.parse('notification_sound.mp3').toString());
+
+            setState(() {
+              isNearby = true;
+            });
+          }
+          return;
+        }
+      }
+
+      setState(() {
+        isNearby = false;
+      });
+    });
+  }
+
+
+  double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    const double radius = 6371; // Earth's radius in kilometers
+    double dLat = _toRadians(lat2 - lat1);
+    double dLon = _toRadians(lon2 - lon1);
+
+    double a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(_toRadians(lat1)) * cos(_toRadians(lat2)) * sin(dLon / 2) * sin(dLon / 2);
+
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    double distance = radius * c;
+
+    return distance * 1000; // Convert to meters
+  }
+
+  double _toRadians(double degree) {
+    return degree * pi / 180;
   }
 
   Future<void> _fetchLoggedInUsername() async {
@@ -122,7 +262,12 @@ class MapSampleState extends State<MapSample> {
     try {
       currentLocation = await LocationService.getLocation();
       if (mounted) {
-        setState(() {});
+        setState(() {
+          _checkNearbyMarkers();
+          if (autoFindNearestEnabled) {
+            _findNearestUnexploredEntry();
+          }
+        });
       }
     } catch (e) {
       print('Error updating location: $e');
@@ -229,6 +374,8 @@ class MapSampleState extends State<MapSample> {
                       updateMapCamera(); // Center the map initially
                       getLoggedInUsername();
                       _fetchLoggedInUsername();
+                      _checkNearbyMarkers();
+                      _findNearestUnexploredEntry(); // Move it here
                     },
                     initialCameraPosition: CameraPosition(
                       target: LatLng(
@@ -259,7 +406,8 @@ class MapSampleState extends State<MapSample> {
                             tappedMarkerInfos.clear();
                             tappedMarkerIds.add(MarkerId(marker.entryId.toString()));
                             tappedMarkerInfos.add(TappedMarkerInfo(entryMarker: marker));
-                            setState(() {});
+                            _checkNearbyMarkers();
+                            // setState(() {});
                           });
                         },
                       );
@@ -269,6 +417,7 @@ class MapSampleState extends State<MapSample> {
                       setState(() {
                         tappedMarkerIds.clear();
                         tappedMarkerInfos.clear();
+                        _checkNearbyMarkers();
                       });
                     },
                   ),
@@ -295,6 +444,40 @@ class MapSampleState extends State<MapSample> {
               ),
 
               NavigationHelper.buildEntryDetailsCard(tappedMarkerIds, entryMarkers),
+              if (isNearby)
+                ElevatedButton(
+                  onPressed: () {
+                    // Show congratulations stuff here
+                    // You can use a dialog or navigate to a new screen
+                    // Example: showDialog(...);
+
+                    // Reset nearby state
+                    setState(() {
+                      isNearby = false;
+                    });
+                  },
+                  child: Text('Congratulations!'),
+                ),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children:[
+                  SizedBox(height: 16.0),
+                  // Switch widget to toggle automatic calls
+                  Text("Auto Find Nearest Entry & Follow Mode"),
+                  Switch(
+                    value: autoFindNearestEnabled,
+                    onChanged: (value) {
+                      setState(() {
+                        autoFindNearestEnabled = value;
+                        if (autoFindNearestEnabled) {
+                          _findNearestUnexploredEntry();
+                        }
+                      });
+                    },
+                  ),
+                ]
+              ),
 
           ],
         ),
@@ -315,6 +498,21 @@ class MapSampleState extends State<MapSample> {
       ),
     );
   }
+}
+
+// Check if the user has explored the entry
+bool hasExploredOrOwnedEntry(List<Map<String, dynamic>> userHistory, String entryId) {
+  print('User History: $userHistory');
+
+  return userHistory.any((entry) {
+    print('Entry: $entry');
+
+    if (entry['entry_id'] == entryId) {
+      return true;
+    } else {
+      return false;
+    }
+  });
 }
 
 class NavigationHelper {
@@ -345,6 +543,8 @@ class NavigationHelper {
   }
 }
 
+List<Map<String, dynamic>> userHistoryPub = [];
+
 class EntryDetailsWidget extends StatelessWidget {
   final EntryMarker entryMarker;
   bool hasSeen = false;
@@ -359,6 +559,7 @@ class EntryDetailsWidget extends StatelessWidget {
         // Display latitude and longitude for all users
         Text("Latitude: ${entryMarker.latitude}"),
         Text("Longitude: ${entryMarker.longitude}"),
+        Text("Distance to User: ${entryMarker.distanceToUser.toStringAsFixed(2)} meters"),
 
         // Fetch user history and determine if the user has explored or owned the marker
         FutureBuilder<List<Map<String, dynamic>>?>(
@@ -370,6 +571,7 @@ class EntryDetailsWidget extends StatelessWidget {
               return Text("Error fetching user history: ${snapshot.error}");
             } else {
               final List<Map<String, dynamic>> userHistory = snapshot.data ?? [];
+              userHistoryPub = userHistory;
               print("ALl data:$userHistory");
 
               // Check if the user has explored or owned the marker position using userHistory
@@ -394,7 +596,7 @@ class EntryDetailsWidget extends StatelessWidget {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text("You haven't explored this memory yet."),
+                    Text("You haven't explored this memory yet.\n Walk nearby to unlock."),
                     // Text("Latitude: ${entryMarker.latitude}"),
                     // Text("Longitude: ${entryMarker.longitude}"),
                   ],
@@ -429,22 +631,6 @@ class EntryDetailsWidget extends StatelessWidget {
     } catch (e) {
       throw Exception('Error fetching user history: $e');
     }
-  }
-
-
-// Check if the user has explored the entry
-  bool hasExploredOrOwnedEntry(List<Map<String, dynamic>> userHistory, String entryId) {
-    print('User History: $userHistory');
-
-    return userHistory.any((entry) {
-      print('Entry: $entry');
-
-      if (entry['entry_id'] == entryId) {
-        return true;
-      } else {
-        return false;
-      }
-    });
   }
 
 }
