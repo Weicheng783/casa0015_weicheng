@@ -347,36 +347,25 @@ class _MyHomePageState extends State<MyHomePage> {
                         //   child: Icon(Icons.refresh),
                         // ),
                         Container(
-                          width: size.width * 0.95, // Set width to 95% of the screen width
+                          width: size.width * 0.95,
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10.0), // Set the corner radius as needed
-                            child: SizedBox(
-                              height: size.height * 0.39,
-                              width: size.width * 0.95,
-                              child: MapSample(), // Your existing content, replace with Text if needed
-                            ),
-                          ),
-                        ),
+                            borderRadius: BorderRadius.circular(10.0),
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
 
-                        // Details card
-                        if (tappedMarkerIds.isNotEmpty)
-                          Card(
-                            elevation: 5.0,
-                            margin: EdgeInsets.all(16.0),
-                            child: Padding(
-                              padding: EdgeInsets.all(16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  for (MarkerId tappedMarkerId in tappedMarkerIds)
-                                  // Find the corresponding EntryMarker using the tappedMarkerId
-                                    if (entryMarkers.any((marker) => marker.toMarker().markerId == tappedMarkerId))
-                                      EntryDetailsWidget(entryMarker: entryMarkers.firstWhere((marker) => marker.toMarker().markerId == tappedMarkerId)),
-                                  // ... (add more details as needed)
-                                ],
+                                });
+                                // Call setState(() {}); or perform any action when the container is tapped
+                                // UserDetailsPage().showDetails(context);
+                              },
+                              child: SizedBox(
+                                height: size.height * 0.7,
+                                width: size.width * 0.95,
+                                child: MapSample(),
                               ),
                             ),
                           ),
+                        ),
 
                       ],
                     )

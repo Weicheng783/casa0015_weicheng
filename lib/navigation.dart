@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:story.trail/login.dart';
 
 import 'main.dart';
 import 'mapHelper.dart';
@@ -85,10 +87,22 @@ class MapSampleState extends State<MapSample> {
   LocationData? currentLocation;
   bool locationPermissionGranted = false;
 
+  String loggedInUsername = '';
+
   @override
   void initState() {
     super.initState();
     _initMap();
+    _fetchLoggedInUsername();
+  }
+
+  Future<void> _fetchLoggedInUsername() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? username = prefs.getString('username');
+
+    setState(() {
+      loggedInUsername = username ?? '';
+    });
   }
 
   void _initMap() async {
@@ -214,6 +228,7 @@ class MapSampleState extends State<MapSample> {
                       setMapTheme(mapController, currentBrightness == Brightness.dark);
                       updateMapCamera(); // Center the map initially
                       getLoggedInUsername();
+                      _fetchLoggedInUsername();
                     },
                     initialCameraPosition: CameraPosition(
                       target: LatLng(
@@ -240,8 +255,11 @@ class MapSampleState extends State<MapSample> {
                           print(marker.entryId.toString());
                           // Update state to show details for the tapped marker
                           setState(() {
+                            tappedMarkerIds.clear();
+                            tappedMarkerInfos.clear();
                             tappedMarkerIds.add(MarkerId(marker.entryId.toString()));
                             tappedMarkerInfos.add(TappedMarkerInfo(entryMarker: marker));
+                            setState(() {});
                           });
                         },
                       );
@@ -275,6 +293,9 @@ class MapSampleState extends State<MapSample> {
                   padding: EdgeInsets.symmetric(horizontal: 16.0),
                 ),
               ),
+
+              NavigationHelper.buildEntryDetailsCard(tappedMarkerIds, entryMarkers),
+
           ],
         ),
       ),
@@ -293,5 +314,165 @@ class MapSampleState extends State<MapSample> {
         ),
       ),
     );
+  }
+}
+
+class NavigationHelper {
+  static Widget buildEntryDetailsCard(Set<MarkerId> tappedMarkerIds, List<EntryMarker> entryMarkers) {
+    if (tappedMarkerIds.isNotEmpty) {
+      return Card(
+        elevation: 5.0,
+        margin: EdgeInsets.all(16.0),
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Only display details for the first tapped marker
+              EntryDetailsWidget(
+                entryMarker: entryMarkers.firstWhere(
+                      (marker) => marker.toMarker().markerId == tappedMarkerIds.first,
+                ),
+              ),
+              // ... (add more details as needed)
+            ],
+          ),
+        ),
+      );
+    } else {
+      return const SizedBox.shrink(); // Return an empty container if there are no tapped markers
+    }
+  }
+}
+
+class EntryDetailsWidget extends StatelessWidget {
+  final EntryMarker entryMarker;
+  bool hasSeen = false;
+
+  EntryDetailsWidget({required this.entryMarker});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Display latitude and longitude for all users
+        Text("Latitude: ${entryMarker.latitude}"),
+        Text("Longitude: ${entryMarker.longitude}"),
+
+        // Fetch user history and determine if the user has explored or owned the marker
+        FutureBuilder<List<Map<String, dynamic>>?>(
+          future: fetchUserHistory(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return Text("Error fetching user history: ${snapshot.error}");
+            } else {
+              final List<Map<String, dynamic>> userHistory = snapshot.data ?? [];
+              print("ALl data:$userHistory");
+
+              // Check if the user has explored or owned the marker position using userHistory
+              hasSeen = hasExploredOrOwnedEntry(userHistory, entryMarker.entryId);
+
+              print("hasSeen: $hasSeen");
+
+              // Conditionally display additional information based on user's history
+              if (hasSeen) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Display additional information for users who have owned or explored the marker
+                    Text("Entry ID: ${entryMarker.entryId}"),
+                    Text("Time: ${entryMarker.time}"),
+                    Text("Date: ${entryMarker.date}"),
+                    Text("Content: ${entryMarker.content}"),
+                  ],
+                );
+              } else {
+                // return SizedBox.shrink(); // Hide details for users who haven't explored or owned the marker
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text("You haven't explored this memory yet."),
+                    // Text("Latitude: ${entryMarker.latitude}"),
+                    // Text("Longitude: ${entryMarker.longitude}"),
+                  ],
+                );
+              }
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  Future<List<Map<String, dynamic>>?> fetchUserHistory() async {
+    try {
+      // Fetch user history by calling the API endpoint
+      final response = await http.post(
+        Uri.parse('https://weicheng.app/flutter/user.php'),
+        body: {'username': loggedInUsername},
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+
+        // Extract entries_created and entries_explored data from the response
+        final List<dynamic> entriesData = responseData['entries_created'] ?? [];
+        final List<dynamic> exploredData = responseData['entries_explored'] ?? [];
+
+        return List<Map<String, dynamic>>.from(entriesData + exploredData);
+      } else {
+        throw Exception('Failed to fetch user history: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching user history: $e');
+    }
+  }
+
+
+// Check if the user has explored the entry
+  bool hasExploredOrOwnedEntry(List<Map<String, dynamic>> userHistory, String entryId) {
+    print('User History: $userHistory');
+
+    return userHistory.any((entry) {
+      print('Entry: $entry');
+
+      if (entry['entry_id'] == entryId) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+  }
+
+}
+
+class UserHistory {
+  final String username;
+  final List<Map<String, dynamic>> entriesCreated;
+  final List<Map<String, dynamic>> entriesExplored;
+
+  UserHistory({
+    required this.username,
+    required this.entriesCreated,
+    required this.entriesExplored,
+  });
+
+  factory UserHistory.fromMap(Map<String, dynamic> map) {
+    return UserHistory(
+      username: map['username'],
+      entriesCreated: List<Map<String, dynamic>>.from(map['entries_created']),
+      entriesExplored: List<Map<String, dynamic>>.from(map['entries_explored']),
+    );
+  }
+
+  bool hasExplored(String entryId) {
+    return entriesExplored.any((entry) => entry['entry_id'] == entryId);
+  }
+
+  bool hasOwned(String entryId) {
+    return entriesCreated.any((entry) => entry['entry_id'] == entryId);
   }
 }
