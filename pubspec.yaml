@@ -37,6 +37,7 @@ dependencies:
   shared_preferences: ^2.2.2
   vibration: ^1.8.4
   audioplayers: ^5.2.1
+  restart_app: ^1.2.1
   flutter:
     sdk: flutter
 

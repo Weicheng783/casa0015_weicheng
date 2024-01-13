@@ -208,6 +208,15 @@ class LoginScreen extends StatelessWidget {
                   width: 100,
                 ),
                 SizedBox(height: 16),
+                if (username == null || username!.isEmpty)
+                  Text(
+                    "Welcome to Story Trail",
+                    style: TextStyle(
+                      fontFamily: 'caveat',
+                      fontWeight: FontWeight.w400,
+                      fontSize: 40,
+                    ),
+                  ),
                 if (username != null && username!.isEmpty)
                   if (Platform.isAndroid)
                     TextFormField(

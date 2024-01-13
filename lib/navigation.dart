@@ -777,20 +777,21 @@ class EntryDetailsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         // Display latitude and longitude for all users
         Text("Latitude: ${entryMarker.latitude}"),
         Text("Longitude: ${entryMarker.longitude}"),
-        Text("Distance to User: ${entryMarker.distanceToUser.toStringAsFixed(2)} meters"),
+        Text("Distance from you: ${entryMarker.distanceToUser.toStringAsFixed(2)} meters"),
 
         // Fetch user history and determine if the user has explored or owned the marker
         FutureBuilder<List<Map<String, dynamic>>?>(
           future: fetchUserHistory(),
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
-            } else if (snapshot.hasError) {
+            // if (snapshot.connectionState == ConnectionState.waiting) {
+            //   // return CircularProgressIndicator();
+            // } else
+            if (snapshot.hasError) {
               return Text("Error fetching user history: ${snapshot.error}");
             } else {
               final List<Map<String, dynamic>> userHistory = snapshot.data ?? [];
@@ -806,6 +807,7 @@ class EntryDetailsWidget extends StatelessWidget {
               if (hasSeen) {
                 showButtonNow = false;
                 return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     // Display additional information for users who have owned or explored the marker
