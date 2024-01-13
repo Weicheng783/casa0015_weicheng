@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:story.trail/submitTrail.dart';
 import 'package:story.trail/userDetails.dart';
 import 'checkInternet.dart';
 import 'mainHelpers.dart';
@@ -366,7 +367,6 @@ class _MyHomePageState extends State<MyHomePage> {
                             ),
                           ),
                         ),
-
                       ],
                     )
                   ],
@@ -375,9 +375,20 @@ class _MyHomePageState extends State<MyHomePage> {
             },
           ),
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
         floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SubmitTrailPage()),
+            );
+          },
+          tooltip: 'Submit Trail',
+          child: Icon(Icons.add),
+        ),
       ),
+
     );
   }
 }
