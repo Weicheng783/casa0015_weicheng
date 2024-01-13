@@ -53,11 +53,11 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
 
       // Fetch details for each entry
       for (var entry in entriesCreated) {
-        await fetchEntryDetails(entry);
+        await fetchEntryDetails(entry, username);
       }
 
       for (var entry in entriesExplored) {
-        await fetchEntryDetails(entry);
+        await fetchEntryDetails(entry, username);
       }
     } else {
       // Handle error
@@ -65,7 +65,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     }
   }
 
-  Future<void> fetchEntryDetails(MapEntry entry) async {
+  Future<void> fetchEntryDetails(MapEntry entry, String username) async {
     final response = await http.post(
       Uri.parse("https://weicheng.app/flutter/getEntry.php"),
       body: {"entryid": entry.entryId},
@@ -78,13 +78,27 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         entry.long = entryDetails['long'] ?? "0.0";
         entry.lat = entryDetails['lat'] ?? "0.0";
         entry.time = entryDetails['time'] ?? "";
-        entry.date = entryDetails['date'] ?? "";
         entry.content = entryDetails['content'] ?? "";
-        entry.comment = entryDetails['comment'] ?? "";
         entry.authorUsername = entryDetails['author_username'] ?? "";
         entry.authorUserId = entryDetails['author_user_id'] ?? "";
-        entry.exploreUsername = entryDetails['explore_username'] ?? "";
-        entry.exploreUserId = entryDetails['explore_user_id'] ?? "";
+
+        // Check if it's an explored entry, update date accordingly
+        if (entryDetails['explore_username'] != null && entryDetails['explore_user_id'] != null) {
+          entry.date = entryDetails['explore_date'] ?? ""; // Use the explore date for explored entries
+        } else {
+          entry.date = entryDetails['date'] ?? ""; // Use the created date for created entries
+        }
+
+        // Fetch comment from user.php response
+        if (entryDetails.containsKey('entries_explored')) {
+          List<dynamic> exploredEntries = entryDetails['entries_explored'];
+          for (var exploredEntry in exploredEntries) {
+            if (exploredEntry['entry_id'] == entry.entryId) {
+              entry.comment = exploredEntry['comment'] ?? "";
+              break;
+            }
+          }
+        }
       });
     } else {
       // Handle error
@@ -259,14 +273,14 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                 Divider(),
                                 Text("Date Created: ${entriesCreated[index].date}"),
                                 Text("Time Created: ${entriesCreated[index].time}"),
-                                if (!showCreatedEntries)
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text("Date Explored: ${entriesExplored[index].date}"),
-                                      Text("Time Explored: ${entriesExplored[index].time}"),
-                                    ],
-                                  ),
+                                // if (!showCreatedEntries)
+                                //   Column(
+                                //     crossAxisAlignment: CrossAxisAlignment.start,
+                                //     children: [
+                                //       Text("Date Explored: ${entriesExplored[index].date}"),
+                                //       Text("Time Explored: ${entriesExplored[index].time}"),
+                                //     ],
+                                //   ),
                                 Text("Latitude: ${displayedEntries[index].lat}"),
                                 Text("Longitude: ${displayedEntries[index].long}"),
                                 Text("Content: ${displayedEntries[index].content}"),

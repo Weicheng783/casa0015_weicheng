@@ -86,6 +86,9 @@ List<EntryMarker> entryMarkers = [];
 Set<MarkerId> tappedMarkerIds = Set();
 Set<TappedMarkerInfo> tappedMarkerInfos = Set();
 
+TextEditingController commentController = TextEditingController();
+late EntryMarker? nearestUnexploredEntry;
+
 class MapSampleState extends State<MapSample> {
   late GoogleMapController mapController;
   LocationData? currentLocation;
@@ -93,7 +96,6 @@ class MapSampleState extends State<MapSample> {
 
   String loggedInUsername = '';
   bool isNearby = false;
-  EntryMarker? nearestUnexploredEntry;
   bool autoFindNearestEnabled = false; // Set the default value as needed
 
   @override
@@ -177,47 +179,52 @@ class MapSampleState extends State<MapSample> {
     return zoomLevel;
   }
 
+  bool commentBoxShown = false;
+
   Future<void> _checkNearbyMarkers() async {
     Timer.periodic(Duration(seconds: 10), (timer) async {
-      LocationData userLocation = await LocationService.getLocation();
-      if (autoFindNearestEnabled) {
-        _findNearestUnexploredEntry();
-      }
-
-      for (EntryMarker marker in entryMarkers) {
-        double distance = calculateDistance(
-          userLocation.latitude!,
-          userLocation.longitude!,
-          double.parse(marker.latitude),
-          double.parse(marker.longitude),
-        );
-
-        marker.distanceToUser = distance; // Update the distance for each marker
-
-        if (distance <= 50 && distance != 0.00) {
-          if (!isNearby && !hasExploredOrOwnedEntry(userHistoryPub, marker.entryId)) {
-            // Trigger vibration
-            Vibration.vibrate(duration: 500);
-
-            // Trigger sound
-            AudioPlayer audioPlayer = AudioPlayer();
-            // await audioPlayer.play(Uri.parse('notification_sound.mp3').toString());
-
-            setState(() {
-              isNearby = true;
-            });
-          }else{
-            setState(() {
-              isNearby = false;
-            });
-          }
-          return;
+      if(!commentBoxShown){
+        LocationData userLocation = await LocationService.getLocation();
+        if (autoFindNearestEnabled) {
+          _findNearestUnexploredEntry();
         }
+
+        for (EntryMarker marker in entryMarkers) {
+          double distance = calculateDistance(
+            userLocation.latitude!,
+            userLocation.longitude!,
+            double.parse(marker.latitude),
+            double.parse(marker.longitude),
+          );
+
+          marker.distanceToUser = distance; // Update the distance for each marker
+
+          if (distance <= 50 && distance != 0.00) {
+            if (!isNearby && !hasExploredOrOwnedEntry(userHistoryPub, marker.entryId)) {
+              // Trigger vibration
+              Vibration.vibrate(duration: 500);
+
+              // Trigger sound
+              AudioPlayer audioPlayer = AudioPlayer();
+              // await audioPlayer.play(Uri.parse('notification_sound.mp3').toString());
+
+              setState(() {
+                isNearby = true;
+              });
+            }else{
+              setState(() {
+                isNearby = false;
+              });
+            }
+            return;
+          }
+        }
+
+        setState(() {
+          isNearby = false;
+        });
       }
 
-      setState(() {
-        isNearby = false;
-      });
     });
   }
 
@@ -451,15 +458,67 @@ class MapSampleState extends State<MapSample> {
               NavigationHelper.buildEntryDetailsCard(tappedMarkerIds, entryMarkers),
               if (isNearby && (username!=''))
                 ElevatedButton(
-                  onPressed: () {
-                    // Show congratulations stuff here
-                    // You can use a dialog or navigate to a new screen
-                    // Example: showDialog(...);
+                  onPressed: () async {
+                    // Generate a random comment including current time, date, and a surprising string
+                    String randomString = _generateRandomString();
+                    String currentTime = _getCurrentTime();
+                    String currentDate = _getCurrentDate();
+                    String randomComment = 'Time: $currentTime\nDate: $currentDate\nSurprising String: $randomString';
 
-                    // Reset nearby state
-                    setState(() {
-                      isNearby = false;
-                    });
+                    // Perform the HTTPS POST request
+                    try {
+                      // Fetch user_id from the user.php API response
+                      String? userId = await _fetchUserId();
+                      if (userId == null) {
+                        print('Failed to fetch user_id');
+                        return;
+                      }
+
+                      // Replace 'your_server_url/addExplore.php' with the actual URL of your addExplore.php script
+                      final response = await http.post(
+                        Uri.parse('https://weicheng.app/flutter/addExplore.php'),
+                        body: {
+                          'user_id': userId,
+                          'entry_id': nearestUnexploredEntry!.entryId,
+                          'time': _getCurrentTime(),
+                          'date': _getCurrentDate(),
+                          'comment': randomComment,
+                        },
+                      );
+
+                      if (response.statusCode == 200) {
+                        print('Explore data posted successfully');
+                        // Display the user response in the app
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Explore data posted successfully: ${response.body}'),
+                            duration: Duration(seconds: 3),
+                          ),
+                        );
+                      } else {
+                        print('Failed to post explore data: ${response.statusCode}');
+                        // Display the error response in the app
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Failed to post explore data: ${response.body}'),
+                            duration: Duration(seconds: 3),
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      print('Error posting explore data: $e');
+                      // Display the error message in the app
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Error posting explore data: $e'),
+                          duration: Duration(seconds: 3),
+                        ),
+                      );
+                    }
+
+                    // Refresh the page to refetch all data
+                    _fetchEntries();
+                    _findNearestUnexploredEntry();
                   },
                   child: Text('Congratulations!'),
                 ),
@@ -490,6 +549,110 @@ class MapSampleState extends State<MapSample> {
     );
   }
 
+  Future<String?> _showCommentDialog(BuildContext context) async {
+    return showDialog<String>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text('Enter your comment:'),
+          content: TextField(
+            controller: commentController,
+            onChanged: (comment) {},
+            decoration: InputDecoration(hintText: 'Type your comment here'),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                commentBoxShown = false;
+                Navigator.of(dialogContext).pop(commentController.text);
+              },
+              child: Text('Submit'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _postExploreData(String userComment) async {
+    try {
+      // Fetch user_id from the user.php API response
+      String? userId = await _fetchUserId();
+      if (userId == null) {
+        print('Failed to fetch user_id');
+        return;
+      }
+
+      // Replace 'your_server_url/addExplore.php' with the actual URL of your addExplore.php script
+      final response = await http.post(
+        Uri.parse('https://weicheng.app/flutter/addExplore.php'),
+        body: {
+          'user_id': userId,
+          'entry_id': nearestUnexploredEntry!.entryId,
+          'time': _getCurrentTime(),
+          'date': _getCurrentDate(),
+          'comment': userComment,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('Explore data posted successfully');
+        // Display the user response in the app
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Explore data posted successfully: ${response.body}'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      } else {
+        print('Failed to post explore data: ${response.statusCode}');
+        // Display the error response in the app
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to post explore data: ${response.body}'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error posting explore data: $e');
+      // Display the error message in the app
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error posting explore data: $e'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+  Future<String?> _fetchUserId() async {
+    try {
+      // Fetch user.php API response
+      final response = await http.post(
+        Uri.parse('https://weicheng.app/flutter/user.php'),
+        body: {'username': loggedInUsername},
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        return responseData['user_id'] as String?;
+      } else {
+        print('Failed to fetch user data: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching user data: $e');
+      return null;
+    }
+  }
+
   void updateMapCamera() {
     mapController.animateCamera(
       CameraUpdate.newCameraPosition(
@@ -504,6 +667,57 @@ class MapSampleState extends State<MapSample> {
     );
   }
 }
+
+String _generateRandomString() {
+  const String characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#%^&*()-=_+[]{}|;:,.<>?';
+  const int length = 10;
+
+  Random random = Random();
+  String randomString = '';
+
+  for (int i = 0; i < length; i++) {
+    randomString += characters[random.nextInt(characters.length)];
+  }
+
+  return randomString;
+}
+
+Future<void> _postExploreData(String userComment) async {
+  try {
+    // Replace 'your_server_url/addExplore.php' with the actual URL of your addExplore.php script
+    final response = await http.post(
+      Uri.parse('https://weicheng.app/flutter/addExplore.php'),
+      body: {
+        'user_id': 'your_user_id', // replace with actual user_id
+        'entry_id': nearestUnexploredEntry!.entryId, // replace with actual entry_id
+        'time': _getCurrentTime(),
+        'date': _getCurrentDate(),
+        'comment': userComment,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      print('Explore data posted successfully');
+    } else {
+      print('Failed to post explore data: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error posting explore data: $e');
+  }
+}
+
+String _getCurrentTime() {
+  DateTime now = DateTime.now();
+  String formattedTime = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+  return formattedTime;
+}
+
+String _getCurrentDate() {
+  DateTime now = DateTime.now();
+  String formattedDate = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+  return formattedDate;
+}
+
 
 // Check if the user has explored or owned the entry
 bool hasExploredOrOwnedEntry(List<Map<String, dynamic>> userHistory, String entryId) {
