@@ -88,6 +88,8 @@ Set<TappedMarkerInfo> tappedMarkerInfos = Set();
 
 TextEditingController commentController = TextEditingController();
 late EntryMarker? nearestUnexploredEntry;
+bool showButtonNow = false;
+double nowDistance = 999.99;
 
 class MapSampleState extends State<MapSample> {
   late GoogleMapController mapController;
@@ -96,7 +98,7 @@ class MapSampleState extends State<MapSample> {
 
   String loggedInUsername = '';
   bool isNearby = false;
-  bool autoFindNearestEnabled = false; // Set the default value as needed
+  bool autoFindNearestEnabled = true;
 
   @override
   void initState() {
@@ -131,6 +133,8 @@ class MapSampleState extends State<MapSample> {
       // Find the nearest unexplored entry
       nearestUnexploredEntry = unexploredEntries.reduce((a, b) =>
       a.distanceToUser < b.distanceToUser ? a : b);
+
+      nowDistance = nearestUnexploredEntry!.distanceToUser;
 
       // Automatically set the map scale factor based on distance
       double zoomLevel = _calculateZoomLevel(nearestUnexploredEntry!.distanceToUser);
@@ -200,7 +204,7 @@ class MapSampleState extends State<MapSample> {
           marker.distanceToUser = distance; // Update the distance for each marker
 
           if (distance <= 50 && distance != 0.00) {
-            if (!isNearby && !hasExploredOrOwnedEntry(userHistoryPub, marker.entryId)) {
+            if (showButtonNow) {
               // Trigger vibration
               Vibration.vibrate(duration: 500);
 
@@ -217,6 +221,8 @@ class MapSampleState extends State<MapSample> {
               });
             }
             return;
+          }else{
+            showButtonNow = false;
           }
         }
 
@@ -365,7 +371,7 @@ class MapSampleState extends State<MapSample> {
                   ),
                   SizedBox(height: 8.0),
                   Text(
-                    "To use this app, please grant location permission.",
+                    "To use this app, please grant location permission.\n The map might be loading, please wait a moment.",
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -456,9 +462,10 @@ class MapSampleState extends State<MapSample> {
               ),
 
               NavigationHelper.buildEntryDetailsCard(tappedMarkerIds, entryMarkers),
-              if (isNearby && (username!=''))
+              if (showButtonNow && username!='' && nowDistance <= 50.0 && nowDistance != 0.0)
                 ElevatedButton(
                   onPressed: () async {
+                    showButtonNow = false;
                     // Generate a random comment including current time, date, and a surprising string
                     String randomString = _generateRandomString();
                     String currentTime = _getCurrentTime();
@@ -468,17 +475,12 @@ class MapSampleState extends State<MapSample> {
                     // Perform the HTTPS POST request
                     try {
                       // Fetch user_id from the user.php API response
-                      String? userId = await _fetchUserId();
-                      if (userId == null) {
-                        print('Failed to fetch user_id');
-                        return;
-                      }
 
                       // Replace 'your_server_url/addExplore.php' with the actual URL of your addExplore.php script
                       final response = await http.post(
                         Uri.parse('https://weicheng.app/flutter/addExplore.php'),
                         body: {
-                          'user_id': userId,
+                          'user_identifier': username,
                           'entry_id': nearestUnexploredEntry!.entryId,
                           'time': _getCurrentTime(),
                           'date': _getCurrentDate(),
@@ -487,6 +489,7 @@ class MapSampleState extends State<MapSample> {
                       );
 
                       if (response.statusCode == 200) {
+                        Vibration.vibrate(duration: 5000);
                         print('Explore data posted successfully');
                         // Display the user response in the app
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -506,6 +509,7 @@ class MapSampleState extends State<MapSample> {
                         );
                       }
                     } catch (e) {
+                      Vibration.vibrate(duration: 500);
                       print('Error posting explore data: $e');
                       // Display the error message in the app
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -520,7 +524,7 @@ class MapSampleState extends State<MapSample> {
                     _fetchEntries();
                     _findNearestUnexploredEntry();
                   },
-                  child: Text('Congratulations!'),
+                  child: Text('Register & Congratulations!'),
                 ),
 
               Row(
@@ -800,6 +804,7 @@ class EntryDetailsWidget extends StatelessWidget {
 
               // Conditionally display additional information based on user's history
               if (hasSeen) {
+                showButtonNow = false;
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -812,10 +817,13 @@ class EntryDetailsWidget extends StatelessWidget {
                 );
               } else {
                 // return SizedBox.shrink(); // Hide details for users who haven't explored or owned the marker
+                showButtonNow = true;
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text("You haven't explored this memory yet.\n Walk nearby to unlock."),
+                    if(username=='')
+                      Text("Login to register your footprints."),
+                    Text("You haven't explored this memory yet.\n Walk nearby (<=50m) and click here to unlock."),
                     // Text("Latitude: ${entryMarker.latitude}"),
                     // Text("Longitude: ${entryMarker.longitude}"),
                   ],

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io' show Platform;
@@ -209,26 +210,48 @@ class LoginScreen extends StatelessWidget {
                 SizedBox(height: 16),
                 if (username != null && username!.isEmpty)
                   if (Platform.isAndroid)
-                    TextField(
+                    TextFormField(
                       controller: usernameController,
                       focusNode: usernameFocus,
                       textInputAction: TextInputAction.next,
-                      onSubmitted: (_) {
+                      onFieldSubmitted: (_) {
                         FocusScope.of(context).requestFocus(passwordFocus);
                         fetchPreferences();
+                      },
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                            RegExp(r'^[a-zA-Z][a-zA-Z0-9]*$'), // Allow letters and mixed numbers
+                            replacementString: ''),
+                      ],
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please enter a username';
+                        }
+                        return null;
                       },
                       decoration: InputDecoration(labelText: 'User Name'),
                     ),
                 if (username != null && username!.isEmpty)
                   if (Platform.isIOS)
-                    TextField(
+                    TextFormField(
                       focusNode: usernameFocus,
                       textInputAction: TextInputAction.next,
-                      onSubmitted: (_) {
+                      onFieldSubmitted: (_) {
                         fetchPreferences();
                       },
                       onChanged: (username) {
                         usernameController.text = username;
+                      },
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                            RegExp(r'^[a-zA-Z][a-zA-Z0-9]*$'), // Allow letters and mixed numbers
+                            replacementString: ''),
+                      ],
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please enter a username';
+                        }
+                        return null;
                       },
                       decoration: InputDecoration(labelText: 'User Name'),
                     ),

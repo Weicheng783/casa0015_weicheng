@@ -271,16 +271,23 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                                 ),
                                 Divider(),
-                                Text("Date Created: ${entriesCreated[index].date}"),
-                                Text("Time Created: ${entriesCreated[index].time}"),
-                                // if (!showCreatedEntries)
-                                //   Column(
-                                //     crossAxisAlignment: CrossAxisAlignment.start,
-                                //     children: [
-                                //       Text("Date Explored: ${entriesExplored[index].date}"),
-                                //       Text("Time Explored: ${entriesExplored[index].time}"),
-                                //     ],
-                                //   ),
+                                if (showCreatedEntries)
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text("Date Created: ${entriesCreated[index].date}"),
+                                      Text("Time Created: ${entriesCreated[index].time}"),
+                                    ],
+                                  ),
+
+                                if (!showCreatedEntries)
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text("Date Explored: ${entriesExplored[index].date}"),
+                                      Text("Time Explored: ${entriesExplored[index].time}"),
+                                    ],
+                                  ),
                                 Text("Latitude: ${displayedEntries[index].lat}"),
                                 Text("Longitude: ${displayedEntries[index].long}"),
                                 Text("Content: ${displayedEntries[index].content}"),
