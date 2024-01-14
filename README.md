@@ -58,8 +58,10 @@ Feel free to reach out if you have any questions or want to contribute to the ap
 
 - **Weicheng:** [GitHub](https://github.com/Weicheng783)
 - **ChatGPT:** [OpenAI](https://www.openai.com/)
+- **Chat Samples**: https://chat.openai.com/share/a7a6bf19-d9d7-419a-8451-01ee862afea2, https://chat.openai.com/share/cc3055a7-351d-4df4-bbce-7fe59d642e6a, https://chat.openai.com/share/5f15fa4c-7582-4ae8-89b1-7ce6b7c9d7e0
+- if you want to see other chat histories, please contact me.
 
-Your feedback and contributions are highly appreciated! 🚀📱😄
+Your feedback are highly appreciated! 🚀📱😄
 
 ## Dependencies
 
