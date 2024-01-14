@@ -1,13 +1,3 @@
-<!---
-
----
-title: "CASA0017: Web Architecture Final Assessment"
-author: "Steven Gray"
-date: "10 Dec 2021"
----
-
--->
-
 # Submission Guide
 
 You will need to edit this file, create a PDF using the instructions below, from this file.   Sign it digitally and upload to Moodle
@@ -20,27 +10,26 @@ Upload this PDF into Moodle for submission including a copy of your presentation
 
 ## Link to GitHub Repository
 
-Flutter Application Name - MY APPLICATION NAME
-GitHub Repository - [https://github.com/ucl-casa-ce/casa0015-mobile-assessment](https://github.com/ucl-casa-ce/casa0015-mobile-assessment)
+Flutter Application Name - Story Trail
+GitHub Repository - [https://github.com/Weicheng783/casa0015_weicheng](https://github.com/Weicheng783/casa0015_weicheng)
 
 ## Introduction to Application
 
-A brief 200 word explanation of your application and it's use.  Below create a Bibliography to code, tutorial, or plugins you've used in the project. Use this guide
-for citation - [https://www.scribbr.co.uk/referencing/harvard-website-reference/](https://www.scribbr.co.uk/referencing/harvard-website-reference/)
 
-## Biblography
 
-1. Last name, First initial. (Year published). Title. Edition. (Only include the edition if it is not the first edition) City published: Publisher, Page(s). <http://google.com>
-
-2. Last name, First initial. (Year published). Title. Edition. (Only include the edition if it is not the first edition) City published: Publisher, Page(s).  <http://google.com>
-
+## Bibliography
+No Bibliography Required, All Sources Original, except:
+Flutter Website & Code Samples: https://flutter.dev/
+OpenAI: https://www.openai.com/
+ChatGPT Website: https://chat.openai.com/
+Chat Sample: https://chat.openai.com/share/5f15fa4c-7582-4ae8-89b1-7ce6b7c9d7e0
+if you require other chat histories, please contact me.
 ----
 
 ## Declaration of Authorship
 
-We, AUTHORS NAME HERE, confirm that the work presented in this assessment is my own. Where information has been derived from other sources, I confirm that this has been indicated in the work.
+Weicheng & GPT3.5, confirm that the work presented in this assessment is my own. Where information has been derived from other sources, I confirm that this has been indicated in the work.
 
+Weicheng Ao
 
-Digitally Sign with Your name Here
-
-ASSESSMENT DATE
+Tuesday 23rd April 2024
