@@ -115,8 +115,8 @@ class _GetPhotoState extends State<GetPhoto> {
 
   Widget _buildSessionWidget(String username, String session_id, List<Photo> photos) {
     return Container(
-      margin: EdgeInsets.all(10.0), // Adjust the margin as needed
-      padding: EdgeInsets.all(10.0), // Adjust the padding as needed
+      // margin: EdgeInsets.all(10.0), // Adjust the margin as needed
+      padding: EdgeInsets.all(5.0), // Adjust the padding as needed
       decoration: BoxDecoration(
         color: Colors.transparent, // Set the background color to material color
         borderRadius: BorderRadius.circular(15.0), // Set the desired border radius

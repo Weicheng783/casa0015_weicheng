@@ -56,6 +56,11 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         entriesExplored = List<MapEntry>.from(
           userData['entries_explored']?.map((entry) => MapEntry.fromMap(entry)) ?? [],
         );
+
+        // Reverse the order of the lists
+        entriesCreated = entriesCreated.reversed.toList();
+        entriesExplored = entriesExplored.reversed.toList();
+
         updateDisplayedEntries();
       });
 

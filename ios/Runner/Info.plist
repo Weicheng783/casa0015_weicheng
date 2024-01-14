@@ -6,10 +6,13 @@
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 
 	<key>NSLocationWhenInUseUsageDescription</key>
-    <string>We need your location to provide you with nearby restaurant recommendations.</string>
+    <string>We need your location to provide you with this service.</string>
 
     <key>NSLocationAlwaysUsageDescription</key>
-    <string>Continuous location access is required for real-time updates on your delivery status.</string>
+    <string>Continuous location access is required for real-time updates.</string>
+
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>$(PRODUCT_NAME) uses photos</string>
 
 	<key>CFBundleDisplayName</key>
 	<string>Story Trail</string>

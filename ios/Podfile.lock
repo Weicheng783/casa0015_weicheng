@@ -1,4 +1,11 @@
 PODS:
+  - audioplayers_darwin (0.0.1):
+    - Flutter
+  - connectivity_plus (0.0.1):
+    - Flutter
+    - ReachabilitySwift
+  - device_info_plus (0.0.1):
+    - Flutter
   - Flutter (1.0.0)
   - google_maps_flutter_ios (0.0.1):
     - Flutter
@@ -8,44 +15,90 @@ PODS:
   - GoogleMaps/Base (6.2.1)
   - GoogleMaps/Maps (6.2.1):
     - GoogleMaps/Base
+  - image_picker_ios (0.0.1):
+    - Flutter
   - location (0.0.1):
+    - Flutter
+  - path_provider_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - ReachabilitySwift (5.0.0)
+  - restart_app (0.0.1):
     - Flutter
   - sensors_plus (0.0.1):
     - Flutter
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
+  - url_launcher_ios (0.0.1):
+    - Flutter
+  - vibration (1.7.5):
+    - Flutter
 
 DEPENDENCIES:
+  - audioplayers_darwin (from `.symlinks/plugins/audioplayers_darwin/ios`)
+  - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
+  - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - Flutter (from `Flutter`)
   - google_maps_flutter_ios (from `.symlinks/plugins/google_maps_flutter_ios/ios`)
+  - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - location (from `.symlinks/plugins/location/ios`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
+  - restart_app (from `.symlinks/plugins/restart_app/ios`)
   - sensors_plus (from `.symlinks/plugins/sensors_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
+  - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
+  - vibration (from `.symlinks/plugins/vibration/ios`)
 
 SPEC REPOS:
   trunk:
     - GoogleMaps
+    - ReachabilitySwift
 
 EXTERNAL SOURCES:
+  audioplayers_darwin:
+    :path: ".symlinks/plugins/audioplayers_darwin/ios"
+  connectivity_plus:
+    :path: ".symlinks/plugins/connectivity_plus/ios"
+  device_info_plus:
+    :path: ".symlinks/plugins/device_info_plus/ios"
   Flutter:
     :path: Flutter
   google_maps_flutter_ios:
     :path: ".symlinks/plugins/google_maps_flutter_ios/ios"
+  image_picker_ios:
+    :path: ".symlinks/plugins/image_picker_ios/ios"
   location:
     :path: ".symlinks/plugins/location/ios"
+  path_provider_foundation:
+    :path: ".symlinks/plugins/path_provider_foundation/darwin"
+  restart_app:
+    :path: ".symlinks/plugins/restart_app/ios"
   sensors_plus:
     :path: ".symlinks/plugins/sensors_plus/ios"
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
+  url_launcher_ios:
+    :path: ".symlinks/plugins/url_launcher_ios/ios"
+  vibration:
+    :path: ".symlinks/plugins/vibration/ios"
 
 SPEC CHECKSUMS:
+  audioplayers_darwin: 877d9a4d06331c5c374595e46e16453ac7eafa40
+  connectivity_plus: bf0076dd84a130856aa636df1c71ccaff908fa1d
+  device_info_plus: c6fb39579d0f423935b0c9ce7ee2f44b71b9fce6
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   google_maps_flutter_ios: 590249c67f34f422122c232f2a626192adbc78ee
   GoogleMaps: 20d7b12be49a14287f797e88e0e31bc4156aaeb4
+  image_picker_ios: 99dfe1854b4fa34d0364e74a78448a0151025425
   location: d5cf8598915965547c3f36761ae9cc4f4e87d22e
+  path_provider_foundation: 3784922295ac71e43754bd15e0653ccfd36a147c
+  ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
+  restart_app: 806659942bf932f6ce51c5372f91ce5e81c8c14a
   sensors_plus: 42b9de1b8237675fa8d8121e4bb93be0f79fa61d
   shared_preferences_foundation: 5b919d13b803cadd15ed2dc053125c68730e5126
+  url_launcher_ios: bbd758c6e7f9fd7b5b1d4cde34d2b95fcce5e812
+  vibration: 7d883d141656a1c1a6d8d238616b2042a51a1241
 
 PODFILE CHECKSUM: 1b50a4280f44a231b37f858aebc2a001225decec
 
