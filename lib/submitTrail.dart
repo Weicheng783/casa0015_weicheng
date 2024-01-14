@@ -2,13 +2,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'dart:io' show Platform;
+import 'package:image_picker/image_picker.dart';
+import 'dart:io' show File, Platform;
 import 'package:location/location.dart';
-import 'package:restart_app/restart_app.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:story.trail/mapHelper.dart';
 
-import 'main.dart';
+import 'mapHelper.dart';
 
 class SubmitTrailPage extends StatefulWidget {
   @override
@@ -18,10 +17,11 @@ class SubmitTrailPage extends StatefulWidget {
 class _SubmitTrailPageState extends State<SubmitTrailPage> {
   TextEditingController contentController = TextEditingController();
   GoogleMapController? _mapController;
-  LatLng currentLocation = LatLng(0.0, 0.0); // Initial placeholder
+  LatLng currentLocation = LatLng(0.0, 0.0);
   String username = "";
   bool isGuestMode = false;
   DateTime currentDate = DateTime.now();
+  List<File> selectedPhotos = [];
 
   @override
   void initState() {
@@ -47,7 +47,6 @@ class _SubmitTrailPageState extends State<SubmitTrailPage> {
       });
     } catch (e) {
       print("Error getting location: $e");
-      // Handle location retrieval error here
     }
   }
 
@@ -57,9 +56,36 @@ class _SubmitTrailPageState extends State<SubmitTrailPage> {
     }
   }
 
+  Future<void> _pickPhotos() async {
+    List<XFile>? pickedFiles = await ImagePicker().pickMultiImage();
+
+    if (pickedFiles != null && pickedFiles.isNotEmpty) {
+      List<File> selectedPhotos = pickedFiles.map((file) => File(file.path)).toList();
+
+      setState(() {
+        this.selectedPhotos = selectedPhotos;
+      });
+
+      // You can handle the selected photos as needed
+      // For example, display them in your UI or show the number of selected photos
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("${selectedPhotos.length} photos selected."),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("No photos selected."),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
   Future<void> _submitTrail() async {
     if (isGuestMode) {
-      // Show appropriate message and prevent submission in guest mode
       showDialog(
         context: context,
         builder: (context) {
@@ -85,10 +111,8 @@ class _SubmitTrailPageState extends State<SubmitTrailPage> {
       );
     } else {
       _getLocation();
-      if(currentLocation.longitude == 0.0 && currentLocation.latitude == 0.0){
-        // Handle error
+      if (currentLocation.longitude == 0.0 && currentLocation.latitude == 0.0) {
         print("Failed to submit trail at this time, this is due to the location is not fetched, wait until the map moves.");
-        // You can display an error message to the user
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Failed to submit trail at this time, this is due to the location is not fetched, wait until the map moves."),
@@ -97,7 +121,7 @@ class _SubmitTrailPageState extends State<SubmitTrailPage> {
         );
         _getLocation();
         _moveCameraToCurrentLocation();
-      }else{
+      } else {
         final response = await http.post(
           Uri.parse("https://weicheng.app/flutter/addEntry.php"),
           body: {
@@ -111,20 +135,29 @@ class _SubmitTrailPageState extends State<SubmitTrailPage> {
         );
 
         if (response.statusCode == 200) {
-          // Handle success
           print("Trail submitted successfully!");
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("Trail submitted successfully! Restart the app to view."),
+              content: Text("Trail submitted successfully! Now, wait for photos uploading."),
               duration: Duration(seconds: 2),
             ),
           );
 
-          Navigator.pop(context, true); // Return to previous page with a success indicator
+          // Get entry_id from the successful response
+          Map<String, dynamic> responseData = jsonDecode(response.body);
+          int entryId = responseData["entry_id"];
+
+          // Upload photos
+          await _uploadPhotos(entryId);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Entry and Photos uploaded successfully!"),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          Navigator.pop(context, true);
         } else {
-          // Handle error
           print("Failed to submit trail. Error ${response.statusCode}");
-          // You can display an error message to the user
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text("Failed to submit trail. Error ${response.statusCode}"),
@@ -132,6 +165,45 @@ class _SubmitTrailPageState extends State<SubmitTrailPage> {
             ),
           );
         }
+      }
+    }
+  }
+
+  Future<void> _uploadPhotos(int entryId) async {
+    for (int i = 0; i < selectedPhotos.length; i++) {
+      File photo = selectedPhotos[i];
+
+      // Create a request to addPhoto.php
+      var request = http.MultipartRequest(
+        "POST",
+        Uri.parse("https://weicheng.app/flutter/addPhoto.php"),
+      );
+
+      // Add parameters
+      request.fields["username"] = username;
+      request.fields["entry_id"] = entryId.toString();
+
+      // Add photo as a file
+      request.files.add(await http.MultipartFile.fromPath(
+        "photos[]",
+        photo.path,
+        filename: "photo_$i.jpg", // Set the filename as needed
+      ));
+
+      // Send the request
+      var response = await request.send();
+
+      // Check the response
+      if (response.statusCode == 200) {
+        print("Photo $i uploaded successfully!");
+      } else {
+        print("Failed to upload photo $i. Error ${response.statusCode}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Failed to upload photo $i. Error ${response.statusCode}"),
+            duration: Duration(seconds: 2),
+          ),
+        );
       }
     }
   }
@@ -144,7 +216,7 @@ class _SubmitTrailPageState extends State<SubmitTrailPage> {
       appBar: AppBar(
         title: Row(
           children: [
-            Icon(Icons.add_circle_outline, color: Colors.green), // Relevant icon
+            Icon(Icons.add_circle_outline, color: Colors.green),
             SizedBox(width: 8),
             Text("New Memory Submission"),
           ],
@@ -172,16 +244,15 @@ class _SubmitTrailPageState extends State<SubmitTrailPage> {
               ),
             if (!isGuestMode)
               Text(
-                "Current Date and Time: ${currentDate.toLocal().toString().split('.')[0]}", // Format date and time
+                "Current Date and Time: ${currentDate.toLocal().toString().split('.')[0]}",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             if (!isGuestMode)
               TextField(
-                // controller: contentController,
                 focusNode: FocusNode(),
                 decoration: InputDecoration(labelText: "Content"),
                 maxLines: 10,
-                onChanged: (content){
+                onChanged: (content) {
                   contentController.text = content;
                 },
               ),
@@ -189,45 +260,55 @@ class _SubmitTrailPageState extends State<SubmitTrailPage> {
               SizedBox(height: 16),
             if (!isGuestMode)
               Container(
-              height: 200, // Set the height as needed
-              child: GoogleMap(
-                onMapCreated: (controller) {
-                  _mapController = controller;
-                  _moveCameraToCurrentLocation();
-                  setMapTheme(controller, currentBrightness == Brightness.dark);
-                  if(currentLocation.latitude == 0.0 && currentLocation.longitude == 0.0){
-                    _getLocation();
-                    if(currentLocation.latitude == 0.0 && currentLocation.longitude == 0.0) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                              "Location is not currently fetched, please wait a while."),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
+                height: 200,
+                child: GoogleMap(
+                  onMapCreated: (controller) {
+                    _mapController = controller;
+                    _moveCameraToCurrentLocation();
+                    setMapTheme(controller, currentBrightness == Brightness.dark);
+                    if (currentLocation.latitude == 0.0 && currentLocation.longitude == 0.0) {
                       _getLocation();
+                      if (currentLocation.latitude == 0.0 && currentLocation.longitude == 0.0) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("Location is not currently fetched, please wait a while."),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                        _getLocation();
+                      }
                     }
-                  }
-                },
-                initialCameraPosition: CameraPosition(
-                  target: currentLocation,
-                  zoom: 15,
-                ),
-                markers: {
-                  Marker(
-                    markerId: MarkerId("currentLocation"),
-                    position: currentLocation,
-                    infoWindow: InfoWindow(title: "Current Location"),
+                  },
+                  initialCameraPosition: CameraPosition(
+                    target: currentLocation,
+                    zoom: 15,
                   ),
-                },
+                  markers: {
+                    Marker(
+                      markerId: MarkerId("currentLocation"),
+                      position: currentLocation,
+                      infoWindow: InfoWindow(title: "Current Location"),
+                    ),
+                  },
+                ),
               ),
-            ),
             if (!isGuestMode)
               SizedBox(height: 16),
             if (!isGuestMode)
               ElevatedButton(
-                onPressed: _submitTrail,
+                onPressed: () async {
+                  await _submitTrail();
+                },
                 child: Text("Submit Your Memory"),
+              ),
+            if (!isGuestMode)
+              SizedBox(height: 16),
+            if (!isGuestMode)
+              ElevatedButton(
+                onPressed: () async {
+                  await _pickPhotos(); // Assume _pickPhotos is a method to select photos
+                },
+                child: Text("Select Photos"),
               ),
           ],
         ),

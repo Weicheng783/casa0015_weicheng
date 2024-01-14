@@ -9,7 +9,10 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:story.trail/submitTrail.dart';
 import 'package:story.trail/userDetails.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'checkInternet.dart';
+import 'getPhoto.dart';
 import 'mainHelpers.dart';
 import 'package:location/location.dart';
 import 'mapHelper.dart';
@@ -367,6 +370,127 @@ class _MyHomePageState extends State<MyHomePage> {
                             ),
                           ),
                         ),
+
+                        Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Center(
+                                child: Text(
+                                  "Weicheng Personal Project No.240109",
+                                  style: const TextStyle(
+                                    fontFamily: 'caveat',
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 20),
+                              Center(
+                                child: Text(
+                                  "The first version is done by co-piloting\n with GPT3.5 between 240109 and 240114.",
+                                  style: const TextStyle(
+                                    fontFamily: 'caveat',
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ElevatedButton(
+                                      onPressed: () {
+                                        // Handle button press, e.g., open the GitHub project
+                                        launchUrl(Uri.parse('https://github.com/Weicheng783/casa0015_weicheng'));
+                                      },
+                                      style: ButtonStyle(
+                                        backgroundColor: MaterialStateProperty.all<Color>(
+                                          Theme.of(context).colorScheme.secondaryContainer,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.code),
+                                          SizedBox(width: 8),
+                                          Text('GitHub Project'),
+                                        ],
+                                      )
+                                  ),
+                                  SizedBox(width: 10),
+                                  ElevatedButton(
+                                      onPressed: () {
+                                        // Handle button press, e.g., open the GitHub project
+                                        launchUrl(Uri.parse('https://github.com/Weicheng783'));
+                                      },
+                                      style: ButtonStyle(
+                                        backgroundColor: MaterialStateProperty.all<Color>(
+                                          Theme.of(context).colorScheme.secondaryContainer,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.account_circle),
+                                          SizedBox(width: 8),
+                                          Text('My GitHub'),
+                                        ],
+                                      )
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 20),
+                              Center(
+                                child: Text(
+                                  "Open Sourced Under The MIT License",
+                                  style: const TextStyle(
+                                    fontFamily: 'caveat',
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Center(
+                                child: Text(
+                                  "Always making stuff with U & Heart💕",
+                                  style: const TextStyle(
+                                    fontFamily: 'caveat',
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              ),
+                              Center(
+                                child: Text(
+                                  "Crafting an Art Work, not Coding, remember.",
+                                  style: const TextStyle(
+                                    fontFamily: 'caveat',
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              ),
+                              Center(
+                                child: Text(
+                                  "Weicheng & GPT3.5 - 2024",
+                                  style: const TextStyle(
+                                    fontFamily: 'caveat',
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 50),
+                            ],
+                          ),
+                        ),
+
                       ],
                     )
                   ],

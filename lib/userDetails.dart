@@ -1,9 +1,15 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'dart:io' show Platform;
+import 'package:image_picker/image_picker.dart';
+import 'package:story.trail/login.dart';
+import 'package:story.trail/main.dart';
+import 'package:story.trail/navigation.dart';
+import 'dart:io' show File, Platform;
 
+import 'getPhoto.dart';
 import 'mapHelper.dart';
 
 class UserDetailsPage extends StatefulWidget {
@@ -15,10 +21,12 @@ class UserDetailsPage extends StatefulWidget {
   _UserDetailsPageState createState() => _UserDetailsPageState();
 }
 
+List<MapEntry> displayedEntries = [];
+
 class _UserDetailsPageState extends State<UserDetailsPage> {
   List<MapEntry> entriesCreated = [];
   List<MapEntry> entriesExplored = [];
-  List<MapEntry> displayedEntries = [];
+
   PageController _pageController = PageController();
   GoogleMapController? _mapController;
   int _currentPageIndex = 0;
@@ -294,6 +302,28 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                 Text("Comment: ${displayedEntries[index].comment}"),
                                 Text("Author Username: ${displayedEntries[index].authorUsername}"),
                                 Text("Author User ID: ${displayedEntries[index].authorUserId}"),
+
+                                // Display photos
+                                SizedBox(
+                                  height: MediaQuery.of(context).size.height * 0.5,
+                                  width: MediaQuery.of(context).size.height * 0.6,
+                                  child: Container(
+                                    // color: , // Set your desired background color here
+                                    child: GetPhoto(entryId: int.parse(displayedEntries[index].entryId)),
+                                  ),
+                                ),
+
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    PhotoUploadPage(entryId: int.parse(displayedEntries[index].entryId)), // Pass entryId here
+                                  ],
+                                ),
+                                // Expanded(
+                                //   child: GetPhoto(entryId: int.parse(displayedEntries[index].entryId)),
+                                // ),
+
                               ],
                             ),
                           ),
@@ -362,4 +392,132 @@ class MapEntry {
         authorUserId = map['author_user_id'] ?? "",
         exploreUsername = map['explore_username'] ?? "", // Added explorer username
         exploreUserId = map['explore_user_id'] ?? "";   // Added explorer user ID
+}
+
+
+
+class PhotoUploadPage extends StatefulWidget {
+  final int entryId;
+
+  PhotoUploadPage({super.key, required this.entryId});
+
+  @override
+  _PhotoUploadPageState createState() => _PhotoUploadPageState(currentEntryId: entryId);
+}
+
+class _PhotoUploadPageState extends State<PhotoUploadPage> {
+  List<File> _selectedPhotos = [];
+  int? currentEntryId;
+
+  // Add entryId parameter to the constructor
+  _PhotoUploadPageState({required this.currentEntryId});
+
+  Future<void> _selectPhotos() async {
+    final picker = ImagePicker();
+    final List<XFile> pickedFiles = await picker.pickMultiImage();
+
+    if (pickedFiles != null && pickedFiles.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("${pickedFiles.length} photos selected."),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      setState(() {
+        _selectedPhotos.addAll(pickedFiles.map((file) => File(file.path)));
+      });
+    }
+  }
+
+
+  Future<void> _submitPhotos() async {
+    for (int i = 0; i < _selectedPhotos.length; i++) {
+      File photo = _selectedPhotos[i];
+
+      // Create a request to addPhoto.php
+      var request = http.MultipartRequest(
+        "POST",
+        Uri.parse("https://weicheng.app/flutter/addPhoto.php"),
+      );
+
+      // Add parameters
+      request.fields["username"] = loggedInUsername;
+      request.fields["entry_id"] = currentEntryId.toString();
+
+      // Add photo as a file
+      request.files.add(await http.MultipartFile.fromPath(
+        "photos[]",
+        photo.path,
+        filename: "photo_$i.jpg", // Set the filename as needed
+      ));
+
+      // Send the request
+      var response = await request.send();
+
+      // Check the response
+      if (response.statusCode == 200) {
+        print("Photo $i uploaded successfully!");
+      } else {
+        print("Failed to upload photo $i. Error ${response.statusCode}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Failed to upload photo $i. Error ${response.statusCode}"),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    }
+    _selectedPhotos.clear();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Photos upload completed."),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        ElevatedButton(
+          onPressed: _selectPhotos,
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(
+              Theme.of(context).colorScheme.secondaryContainer,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.add_a_photo),
+              SizedBox(width: 8,),
+              Text('Select Photos'),
+            ],
+          ),
+        ),
+        SizedBox(height: 20),
+        if (_selectedPhotos.isNotEmpty)
+          ElevatedButton(
+            onPressed: () => _submitPhotos(),
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all<Color>(
+                Theme.of(context).colorScheme.secondaryContainer,
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.cloud_upload_sharp),
+                SizedBox(width: 8,),
+                Text('Upload Photos Now'),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
 }

@@ -547,6 +547,21 @@ class MapSampleState extends State<MapSample> {
                 ]
               ),
 
+            Image.asset(
+              'assets/story_trail.png',
+              height: 100,
+              width: 100,
+            ),
+            SizedBox(height: 16),
+            Text(
+              "Story Trail",
+              style: TextStyle(
+                fontFamily: 'caveat',
+                fontWeight: FontWeight.w400,
+                fontSize: 40,
+              ),
+            ),
+
           ],
         ),
       ),
