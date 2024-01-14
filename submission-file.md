@@ -15,7 +15,7 @@ GitHub Repository - [https://github.com/Weicheng783/casa0015_weicheng](https://g
 
 ## Introduction to Application
 
-
+Story Trail gives users the ability to share their memories and photos by geotagging them based on real locations. Other users can explore these memories by walking nearby, unlocking a unique and immersive experience. The app includes features such as user account management for saving exploration history, photo sharing based on real locations, and the ability to explore memories shared by others.
 
 ## Bibliography
 No Bibliography Required, All Sources Original, except:
