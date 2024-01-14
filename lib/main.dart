@@ -12,6 +12,7 @@ import 'package:story.trail/userDetails.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'checkInternet.dart';
+import 'feedbackPage.dart';
 import 'getPhoto.dart';
 import 'mainHelpers.dart';
 import 'package:location/location.dart';
@@ -526,7 +527,6 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Icon(Icons.add),
         ),
       ),
-
     );
   }
 }

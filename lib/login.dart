@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io' show Platform;
 
+import 'feedbackPage.dart';
 import 'main.dart';
 
 String? username = '';
@@ -390,6 +391,31 @@ class LoginScreen extends StatelessWidget {
                       ],
                     ),
                   ),
+
+                // User Feedback
+                ElevatedButton(
+                  onPressed: () {
+                    // This callback will be executed when returning from the FeedbackPage
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        fullscreenDialog: true,
+                        builder: (context) => Scaffold(
+                          body: FeedbackPage(),
+                        ),
+                      ),
+                    );
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.feedback),
+                      SizedBox(width: 8),
+                      Text('Provide Feedback'),
+                    ],
+                  ),
+                ),
+
               ],
             ),
           ),
