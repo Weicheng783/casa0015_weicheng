@@ -19,8 +19,12 @@ The Story Trail app follows a visually appealing design language:
 ### Android
 The app utilizes Material3 UI design language on Android devices, providing a modern and consistent user experience.
 
+Learn Material Design (MD-Google): https://m3.material.io/
+
 ### iOS
 On iOS-based devices, Story Trail adheres to the Human Interface Guidelines and incorporates Cupertino styled widgets, ensuring a seamless and native feel for iOS users.
+
+Learn Human Interface Guidelines (HIG-Apple): https://developer.apple.com/design/human-interface-guidelines
 
 ## Features
 
