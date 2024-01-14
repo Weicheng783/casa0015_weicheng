@@ -42,7 +42,7 @@ This project is licensed under the [MIT License](LICENSE.md).
 
 Feel free to reach out if you have any questions or want to contribute to the app:
 
-- **Weicheng:** [LinkedIn](https://github.com/Weicheng783)
+- **Weicheng:** [GitHub](https://github.com/Weicheng783)
 - **ChatGPT:** [OpenAI](https://www.openai.com/)
 
 Your feedback and contributions are highly appreciated! 🚀📱😄
