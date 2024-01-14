@@ -2,7 +2,7 @@
 
 ![Story Trail App](assets/story_trail.png)
 
-Welcome to Story Trail, an innovative mobile app that allows users to share their memories and photos by geotagging based on real locations. Explore the world around you and discover the stories hidden in every corner.
+Welcome to Story Trail, an innovative cross-platform mobile app that allows users to share their memories and photos by geotagging based on real locations. Explore the world around you and discover the stories hidden in every corner.
 
 ## About
 
