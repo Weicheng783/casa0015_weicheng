@@ -12,6 +12,16 @@ Story Trail gives users the ability to share their memories and photos by geotag
 - **Collaboration:** Weicheng collaborated with ChatGPT and the GPT-3.5 model to create this unique experience.
 - **Technology Stack:** Written entirely in Dart and developed using Flutter.
 
+## UI Design
+
+The Story Trail app follows a visually appealing design language:
+
+### Android
+The app utilizes Material3 UI design language on Android devices, providing a modern and consistent user experience.
+
+### iOS
+On iOS-based devices, Story Trail adheres to the Human Interface Guidelines and incorporates Cupertino styled widgets, ensuring a seamless and native feel for iOS users.
+
 ## Features
 
 - **Geotagging Memories:** Share memories and photos by geotagging them to real locations.
@@ -36,7 +46,7 @@ This project is licensed under the [MIT License](LICENSE.md).
 
 ## Presentation Video
 
-[//]: # (Watch our presentation video to see Story Trail in action! [Presentation Video]&#40;link/to/video&#41;)
+[//]: # (Watch our presentation video to see Story Trail in action! [Presentation Video](link/to/video))
 
 ## Contact Details
 
