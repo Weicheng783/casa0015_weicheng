@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'dart:io' show Platform;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -90,6 +91,7 @@ TextEditingController commentController = TextEditingController();
 late EntryMarker? nearestUnexploredEntry;
 bool showButtonNow = false;
 double nowDistance = 999.99;
+double mapZoomLevel = 15;
 
 class MapSampleState extends State<MapSample> {
   late GoogleMapController mapController;
@@ -139,6 +141,7 @@ class MapSampleState extends State<MapSample> {
       // Automatically set the map scale factor based on distance
       double zoomLevel = _calculateZoomLevel(nearestUnexploredEntry!.distanceToUser);
       print("zoomlevel: $zoomLevel");
+      mapZoomLevel = zoomLevel;
 
       // Update the map camera to show both user and entry
       mapController.animateCamera(
@@ -441,7 +444,58 @@ class MapSampleState extends State<MapSample> {
                   ),
                 ),
               ),
-            SizedBox(height: 16.0),
+            if(Platform.isIOS)
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children:[
+                    ElevatedButton(
+                      onPressed: () {
+                        if(mapZoomLevel >= 17){
+                          mapZoomLevel = 17;
+                        }else{
+                          mapZoomLevel += 1;
+                        }
+                        mapController.animateCamera(
+                          CameraUpdate.zoomTo(mapZoomLevel),
+                        );
+                        setState(() {});
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.zoom_in),
+                          SizedBox(width: 8),
+                          Text('Zoom In'),
+                        ],
+                      ),
+                    ),
+                    // Switch widget to toggle automatic calls
+                    // SizedBox(height: 16.0),
+                    ElevatedButton(
+                      onPressed: () {
+                        if(mapZoomLevel <= 1){
+                          mapZoomLevel = 1;
+                        }else{
+                          mapZoomLevel -= 1;
+                        }
+                        mapController.animateCamera(
+                          CameraUpdate.zoomTo(mapZoomLevel),
+                        );
+                        setState(() {});
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.zoom_out),
+                          SizedBox(width: 8),
+                          Text('Zoom Out'),
+                        ],
+                      ),
+                    ),
+
+                  ]
+              ),
+            SizedBox(height: 5.0),
             // Centered button with icon
             if (!locationPermissionGranted)
               ElevatedButton.icon(
@@ -546,21 +600,6 @@ class MapSampleState extends State<MapSample> {
                   ),
                 ]
               ),
-
-            Image.asset(
-              'assets/story_trail.png',
-              height: 100,
-              width: 100,
-            ),
-            SizedBox(height: 16),
-            Text(
-              "Story Trail",
-              style: TextStyle(
-                fontFamily: 'caveat',
-                fontWeight: FontWeight.w400,
-                fontSize: 40,
-              ),
-            ),
 
           ],
         ),

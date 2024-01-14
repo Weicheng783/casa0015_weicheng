@@ -376,6 +376,20 @@ class _MyHomePageState extends State<MyHomePage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
+                              Image.asset(
+                                'assets/story_trail.png',
+                                height: 100,
+                                width: 100,
+                              ),
+                              SizedBox(height: 16),
+                              Text(
+                                "Story Trail",
+                                style: TextStyle(
+                                  fontFamily: 'caveat',
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 40,
+                                ),
+                              ),
                               Center(
                                 child: Text(
                                   "Weicheng Personal Project No.240109",
