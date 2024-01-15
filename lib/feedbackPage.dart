@@ -129,8 +129,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
   Future<String> _getDeviceModel() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     if (Platform.isAndroid) {
-      // Android might not provide specific model information
-      return 'Unknown';
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      return androidInfo.model + "\nCode Name: " + androidInfo.product ?? 'Unknown';
     } else if (Platform.isIOS) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
       return iosInfo.utsname.machine;
@@ -154,7 +154,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseData = json.decode(response.body);
-      final String feedbackId = responseData['feedback_id'] ?? 'Unknown';
+      final String feedbackId = responseData['feedback_id'].toString() ?? 'Unknown';
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
