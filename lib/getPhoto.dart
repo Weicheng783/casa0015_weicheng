@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Photo {
   final String username;
@@ -38,11 +40,13 @@ class GetPhoto extends StatefulWidget {
 
 class _GetPhotoState extends State<GetPhoto> {
   var _photoList = <Photo>[];
+  bool loadPhotosOverCellular = false;
 
   @override
   void initState() {
     super.initState();
-    fetchData();
+    _loadUserPreferences();
+    _checkConnection();
   }
 
   Future<void> fetchData() async {
@@ -54,9 +58,9 @@ class _GetPhotoState extends State<GetPhoto> {
 
       if (response.statusCode == 200) {
         final List<dynamic> decodedList = json.decode(response.body) ?? [];
-        if(decodedList.length == 0){
+        if (decodedList.length == 0) {
           _photoList = [];
-        }else{
+        } else {
           _photoList = decodedList.map((photo) => Photo.fromJson(photo)).toList();
         }
         setState(() {});
@@ -70,19 +74,28 @@ class _GetPhotoState extends State<GetPhoto> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent, // Set your desired background color here
-      body: _photoList.isEmpty
-          ? Text("No Photo Available")
-          : SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(
-          children: _buildUserWidgets(),
-        ),
-      ),
-    );
+  Future<void> _loadUserPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      loadPhotosOverCellular = prefs.getBool('loadPhotosOverCellular') ?? false;
+    });
+  }
+
+  Future<void> _saveUserPreferences(bool value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('loadPhotosOverCellular', value);
+  }
+
+  Future<void> _checkConnection() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.mobile && !loadPhotosOverCellular) {
+      // Do not load photos over cellular
+      _photoList = [];
+      setState(() {});
+    } else {
+      // Load photos based on user preference or Wi-Fi connection
+      fetchData();
+    }
   }
 
   List<Widget> _buildUserWidgets() {
@@ -115,12 +128,11 @@ class _GetPhotoState extends State<GetPhoto> {
 
   Widget _buildSessionWidget(String username, String session_id, List<Photo> photos) {
     return Container(
-      // margin: EdgeInsets.all(10.0), // Adjust the margin as needed
-      padding: EdgeInsets.all(5.0), // Adjust the padding as needed
+      padding: EdgeInsets.all(5.0),
       decoration: BoxDecoration(
-        color: Colors.transparent, // Set the background color to material color
-        borderRadius: BorderRadius.circular(15.0), // Set the desired border radius
-        border: Border.all(color: Colors.blueGrey, width: 2.0), // Add border if needed
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(15.0),
+        border: Border.all(color: Colors.blueGrey, width: 2.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,7 +148,7 @@ class _GetPhotoState extends State<GetPhoto> {
             scrollDirection: Axis.horizontal,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: photos.map((photo) {
+              children: photos.reversed.map((photo) {
                 return GestureDetector(
                   onTap: () {
                     _showFullScreenDialog(photos, photos.indexOf(photo));
@@ -145,8 +157,8 @@ class _GetPhotoState extends State<GetPhoto> {
                     margin: EdgeInsets.all(8.0),
                     child: Image.network(
                       'https://weicheng.app/flutter/pics/${photo.pictureAddress}.jpg',
-                      width: 200, // Adjusted size for smaller images
-                      height: 200, // Adjusted size for smaller images
+                      width: 200,
+                      height: 200,
                       fit: BoxFit.cover,
                       loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
                         return Center(
@@ -170,34 +182,34 @@ class _GetPhotoState extends State<GetPhoto> {
     );
   }
 
-
-
-
   void _showFullScreenDialog(List<Photo> photos, int initialIndex) {
     showDialog(
+      useSafeArea: false,
       context: context,
       builder: (BuildContext context) {
         return Dialog(
-          backgroundColor: Colors.transparent, // Set background to transparent
-          child: Container(
-            height: MediaQuery.of(context).size.height * 0.8,
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.all(0),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.9,
+            width: MediaQuery.of(context).size.width * 1.5,
             child: PhotoViewGallery.builder(
               itemCount: photos.length,
               builder: (context, index) {
                 return PhotoViewGalleryPageOptions(
                   imageProvider: NetworkImage(
-                    'https://weicheng.app/flutter/pics/${photos[index].pictureAddress}.jpg',
+                    'https://weicheng.app/flutter/pics/${photos[photos.length-index-1].pictureAddress}.jpg',
                   ),
                   minScale: PhotoViewComputedScale.contained,
-                  maxScale: PhotoViewComputedScale.contained * 2,
-                  heroAttributes: PhotoViewHeroAttributes(tag: index),
+                  maxScale: PhotoViewComputedScale.contained * 6.5,
+                  heroAttributes: PhotoViewHeroAttributes(tag: photos.length-index-1),
                 );
               },
               scrollPhysics: BouncingScrollPhysics(),
               backgroundDecoration: BoxDecoration(
-                color: Colors.transparent, // Set background color to transparent
+                color: Colors.transparent,
               ),
-              pageController: PageController(initialPage: initialIndex),
+              pageController: PageController(initialPage: photos.length-initialIndex-1),
             ),
           ),
         );
@@ -205,10 +217,55 @@ class _GetPhotoState extends State<GetPhoto> {
     );
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Allow Loading Photos Over Cellular:'),
+                Switch(
+                  value: loadPhotosOverCellular,
+                  onChanged: (value) {
+                    setState(() {
+                      loadPhotosOverCellular = value;
+                    });
+                    _saveUserPreferences(value);
+                    _checkConnection();
+                  },
+                ),
+              ],
+            ),
+          ),
+          if(!loadPhotosOverCellular && _photoList.isEmpty)
+            Center(
+              child: Icon(Icons.no_photography, size:80),
+            ),
+          _photoList.isEmpty
+              ? Center(
+            child: Text(
+              loadPhotosOverCellular
+                  ? 'No Photos Available'
+                  : 'No Photos Available or they are not loaded in cellular network in order to save your data charges',
+              style: TextStyle(fontSize: 18),
+              textAlign: TextAlign.center,
+            ),
+          )
+              : Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Column(
+                children: _buildUserWidgets(),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
-
-// void main() {
-//   runApp(MaterialApp(
-//     home: GetPhoto(entryId: 1),
-//   ));
-// }

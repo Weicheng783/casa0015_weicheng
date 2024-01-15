@@ -186,8 +186,13 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Text(
-                  "Hi ${widget.username}",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  "Hi ${widget.username}\nLook back these things you have explored",
+                  style: TextStyle(
+                    fontFamily: 'caveat',
+                    fontWeight: FontWeight.w500,
+                    fontSize: 30,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ),
               Row(
@@ -489,7 +494,7 @@ class _PhotoUploadPageState extends State<PhotoUploadPage> {
       children: [
         ElevatedButton(
           onPressed: _selectPhotos,
-          style: ButtonStyle(
+          style: Platform.isIOS ? null : ButtonStyle(
             backgroundColor: MaterialStateProperty.all<Color>(
               Theme.of(context).colorScheme.secondaryContainer,
             ),
@@ -507,7 +512,7 @@ class _PhotoUploadPageState extends State<PhotoUploadPage> {
         if (_selectedPhotos.isNotEmpty)
           ElevatedButton(
             onPressed: () => _submitPhotos(),
-            style: ButtonStyle(
+            style: Platform.isIOS ? null : ButtonStyle(
               backgroundColor: MaterialStateProperty.all<Color>(
                 Theme.of(context).colorScheme.secondaryContainer,
               ),
