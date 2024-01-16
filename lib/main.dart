@@ -20,6 +20,9 @@ import 'mapHelper.dart';
 import 'navigation.dart';
 import 'login.dart'; // Import the login screen file
 
+String revision_ver = "2.1";
+String build_ver = "240116";
+
 void main() {
   runApp(const MyApp());
 }
@@ -504,7 +507,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               SizedBox(height: 8),
                               Center(
                                 child: Text(
-                                  "You are running revision 2, build 240116.",
+                                  "You are running revision $revision_ver, build $build_ver.",
                                   style: const TextStyle(
                                     fontFamily: 'caveat',
                                     fontWeight: FontWeight.w500,

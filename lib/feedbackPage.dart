@@ -4,6 +4,8 @@ import 'dart:io' show Platform;
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:http/http.dart' as http;
 
+import 'main.dart';
+
 class FeedbackPage extends StatefulWidget {
   @override
   _FeedbackPageState createState() => _FeedbackPageState();
@@ -85,7 +87,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                     },
                     child: Text('Submit'),
                   ),
-                  Text('Build Version: 240114'),
+                  Text('Build Version: $build_ver, Revision: $revision_ver'),
                   FutureBuilder(
                     future: _getDeviceDetails(),
                     builder: (context, snapshot) {
@@ -143,7 +145,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
     Map<String, String> data = {
       "message": _feedbackController.text,
-      "build": "240114", // Replace with your actual build version
+      "build": "$build_ver.$revision_ver", // Replace with your actual build version
       "device_details": deviceDetails,
     };
 
@@ -175,7 +177,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                 SizedBox(height: 8),
                 Text('Your feedback ID: $feedbackId'),
                 SizedBox(height: 8),
-                Text('Build Version: 240114'),
+                Text('Build Version: $build_ver.$revision_ver'),
                 Text('Device Details: $deviceDetails'),
               ],
             ),
