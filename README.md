@@ -41,8 +41,9 @@ To install and run the Story Trail app, follow these steps:
 
 1. Clone the repository: `git clone https://github.com/Weicheng783/casa0015_weicheng.git`
 2. Navigate to the project directory: `cd casa0015_weicheng`
-3. Install dependencies: `flutter pub get`
-4. Run the app: `flutter run` or `flutter run --release` on iOS devices
+3. For Android, add your Google Map Api Key of value to the file [android/app/src/main/AndroidManifest_CHANGE.xml](android/app/src/main/AndroidManifest_CHANGE.xml) in the field of com.google.android.geo.API_KEY. For iOS, add.
+4. Install dependencies: `flutter pub get`
+5. Run the app: `flutter run` or `flutter run --release` on iOS devices
 
 Make sure you have Flutter and Dart installed on your machine. For more information, visit [Flutter](https://flutter.dev/docs/get-started/install).
 
@@ -86,9 +87,10 @@ dependencies:
   url_launcher: ^6.2.3
   flutter_exif_rotation: ^0.5.1
   device_info_plus: ^9.1.1
+  image: ^4.1.4
+  exif: ^3.3.0
   flutter:
     sdk: flutter
-
   cupertino_icons: ^1.0.2
 
 dev_dependencies:
