@@ -84,6 +84,8 @@ dependencies:
   restart_app: ^1.2.1
   photo_view: ^0.14.0
   url_launcher: ^6.2.3
+  flutter_exif_rotation: ^0.5.1
+  device_info_plus: ^9.1.1
   flutter:
     sdk: flutter
 

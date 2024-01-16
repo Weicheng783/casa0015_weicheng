@@ -43,6 +43,8 @@ dependencies:
   url_launcher: ^6.2.3
   flutter_exif_rotation: ^0.5.1
   device_info_plus: ^9.1.1
+  image: ^4.1.4
+  exif: ^3.3.0
   flutter:
     sdk: flutter
 

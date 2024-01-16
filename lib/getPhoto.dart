@@ -5,18 +5,21 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Photo {
   final String username;
   final String session_id;
   final String pictureAddress;
   final String datetime;
+  int rotation;
 
   Photo({
     required this.username,
     required this.session_id,
     required this.pictureAddress,
     required this.datetime,
+    this.rotation = 0,
   });
 
   factory Photo.fromJson(Map<String, dynamic> json) {
@@ -151,27 +154,50 @@ class _GetPhotoState extends State<GetPhoto> {
               children: photos.reversed.map((photo) {
                 return GestureDetector(
                   onTap: () {
-                    _showFullScreenDialog(photos, photos.indexOf(photo));
+                    _showFullScreenDialog(photos, photos.indexOf(photo), photo.rotation);
                   },
-                  child: Container(
-                    margin: EdgeInsets.all(8.0),
-                    child: Image.network(
-                      'https://weicheng.app/flutter/pics/${photo.pictureAddress}.jpg',
-                      width: 200,
-                      height: 200,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                        return Center(
-                          child: Column(
-                            children: [
-                              if (loadingProgress?.cumulativeBytesLoaded != loadingProgress?.expectedTotalBytes)
-                                CircularProgressIndicator(),
-                              if (loadingProgress?.cumulativeBytesLoaded == loadingProgress?.expectedTotalBytes) child,
-                            ],
+                  onLongPress: () {
+                    _openPhotoInBrowser(photo);
+                  },
+                  child: Column(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.all(8.0),
+                        child: Transform.rotate(
+                          angle: (photo.rotation / 180) * 3.14159265,
+                          child: Image.network(
+                            'https://weicheng.app/flutter/pics/${photo.pictureAddress}.jpg',
+                            width: 200,
+                            height: 200,
+                            filterQuality: FilterQuality.medium,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                              return Center(
+                                child: Column(
+                                  children: [
+                                    if (loadingProgress?.cumulativeBytesLoaded != loadingProgress?.expectedTotalBytes)
+                                      CircularProgressIndicator(),
+                                    if (loadingProgress?.cumulativeBytesLoaded == loadingProgress?.expectedTotalBytes)
+                                      child,
+                                  ],
+                                ),
+                              );
+                            },
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          _changeImageOrientation(photo);
+                        },
+                        child: Row(children: [
+                            Icon(Icons.rotate_right_sharp),
+                            SizedBox(width: 8),
+                            Text('Change Orientation'),
+                          ]
+                        ),
+                      ),
+                    ],
                   ),
                 );
               }).toList(),
@@ -182,7 +208,13 @@ class _GetPhotoState extends State<GetPhoto> {
     );
   }
 
-  void _showFullScreenDialog(List<Photo> photos, int initialIndex) {
+  void _changeImageOrientation(Photo photo) {
+    setState(() {
+      photo.rotation += 90;
+    });
+  }
+
+  void _showFullScreenDialog(List<Photo> photos, int initialIndex, int initialRotation) {
     showDialog(
       useSafeArea: false,
       context: context,
@@ -198,23 +230,29 @@ class _GetPhotoState extends State<GetPhoto> {
               builder: (context, index) {
                 return PhotoViewGalleryPageOptions(
                   imageProvider: NetworkImage(
-                    'https://weicheng.app/flutter/pics/${photos[photos.length-index-1].pictureAddress}.jpg',
+                    'https://weicheng.app/flutter/pics/${photos[photos.length - index - 1].pictureAddress}.jpg',
                   ),
                   minScale: PhotoViewComputedScale.contained,
                   maxScale: PhotoViewComputedScale.contained * 6.5,
-                  heroAttributes: PhotoViewHeroAttributes(tag: photos.length-index-1),
+                  heroAttributes: PhotoViewHeroAttributes(tag: photos.length - index - 1),
+                  onTapUp: (context, details, controllerValue) {},
                 );
               },
               scrollPhysics: BouncingScrollPhysics(),
               backgroundDecoration: BoxDecoration(
                 color: Colors.transparent,
               ),
-              pageController: PageController(initialPage: photos.length-initialIndex-1),
+              pageController: PageController(initialPage: photos.length - initialIndex - 1),
             ),
           ),
         );
       },
     );
+  }
+
+  void _openPhotoInBrowser(Photo photo) async {
+    final url = 'https://weicheng.app/flutter/pics/${photo.pictureAddress}.jpg';
+    launchUrl(Uri.parse(url));
   }
 
   @override
@@ -223,6 +261,7 @@ class _GetPhotoState extends State<GetPhoto> {
       backgroundColor: Colors.transparent,
       body: Column(
         children: [
+          Text('\\->Long press the image will open it in browser<-/'),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -242,9 +281,9 @@ class _GetPhotoState extends State<GetPhoto> {
               ],
             ),
           ),
-          if(!loadPhotosOverCellular && _photoList.isEmpty)
+          if (!loadPhotosOverCellular && _photoList.isEmpty)
             Center(
-              child: Icon(Icons.no_photography, size:80),
+              child: Icon(Icons.no_photography, size: 80),
             ),
           _photoList.isEmpty
               ? Center(
