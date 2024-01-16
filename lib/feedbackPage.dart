@@ -120,7 +120,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      return 'Android ${androidInfo.version.sdkInt}';
+      return 'Android ${androidInfo.version.release}, ${androidInfo.version.securityPatch}, SDK: ${androidInfo.version.sdkInt}';
     } else if (Platform.isIOS) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
       return 'iOS ${iosInfo.systemVersion}';
