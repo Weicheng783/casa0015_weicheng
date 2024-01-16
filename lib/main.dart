@@ -504,7 +504,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               SizedBox(height: 8),
                               Center(
                                 child: Text(
-                                  "You are running revision 1, build 240114.",
+                                  "You are running revision 2, build 240116.",
                                   style: const TextStyle(
                                     fontFamily: 'caveat',
                                     fontWeight: FontWeight.w500,
