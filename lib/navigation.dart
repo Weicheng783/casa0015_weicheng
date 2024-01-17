@@ -144,33 +144,46 @@ class MapSampleState extends State<MapSample> {
       mapZoomLevel = zoomLevel;
 
       // Update the map camera to show both user and entry
-      mapController.animateCamera(
-        CameraUpdate.newLatLngBounds(
-          LatLngBounds(
-            southwest: LatLng(
-              min(userLocation.latitude!, double.parse(nearestUnexploredEntry!.latitude)),
-              min(userLocation.longitude!, double.parse(nearestUnexploredEntry!.longitude)),
+      try {
+        mapController.animateCamera(
+          CameraUpdate.newLatLngBounds(
+            LatLngBounds(
+              southwest: LatLng(
+                min(userLocation.latitude!,
+                    double.parse(nearestUnexploredEntry!.latitude)),
+                min(userLocation.longitude!,
+                    double.parse(nearestUnexploredEntry!.longitude)),
+              ),
+              northeast: LatLng(
+                max(userLocation.latitude!,
+                    double.parse(nearestUnexploredEntry!.latitude)),
+                max(userLocation.longitude!,
+                    double.parse(nearestUnexploredEntry!.longitude)),
+              ),
             ),
-            northeast: LatLng(
-              max(userLocation.latitude!, double.parse(nearestUnexploredEntry!.latitude)),
-              max(userLocation.longitude!, double.parse(nearestUnexploredEntry!.longitude)),
-            ),
+            50.0, // Padding in pixels
           ),
-          50.0, // Padding in pixels
-        ),
-      );
+        );
+      }catch(e){
+        _initMap();
+      }
 
       // mapController.animateCamera(
       //   CameraUpdate.zoomTo(zoomLevel),
       // );
 
       // Automatically display information for the selected entry
-      setState(() {
-        tappedMarkerIds.clear();
-        tappedMarkerInfos.clear();
-        tappedMarkerIds.add(MarkerId(nearestUnexploredEntry!.entryId));
-        tappedMarkerInfos.add(TappedMarkerInfo(entryMarker: nearestUnexploredEntry!));
-      });
+      try {
+        setState(() {
+          tappedMarkerIds.clear();
+          tappedMarkerInfos.clear();
+          tappedMarkerIds.add(MarkerId(nearestUnexploredEntry!.entryId));
+          tappedMarkerInfos.add(
+              TappedMarkerInfo(entryMarker: nearestUnexploredEntry!));
+        });
+      }catch(e){
+        print("NO WAY!");
+      }
     }
   }
 
@@ -212,16 +225,24 @@ class MapSampleState extends State<MapSample> {
               Vibration.vibrate(duration: 500);
 
               // Trigger sound
-              AudioPlayer audioPlayer = AudioPlayer();
+              // AudioPlayer audioPlayer = AudioPlayer();
               // await audioPlayer.play(Uri.parse('notification_sound.mp3').toString());
 
-              setState(() {
+              try {
+                setState(() {
+                  isNearby = true;
+                });
+              }catch(e){
                 isNearby = true;
-              });
+              }
             }else{
-              setState(() {
+              try {
+                setState(() {
+                  isNearby = false;
+                });
+              }catch(e){
                 isNearby = false;
-              });
+              }
             }
             return;
           }else{

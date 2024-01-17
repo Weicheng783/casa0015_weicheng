@@ -29,6 +29,7 @@ final TextEditingController passwordController = TextEditingController();
 class LoginScreen extends StatelessWidget {
   final FocusNode usernameFocus = FocusNode();
   final FocusNode passwordFocus = FocusNode();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   Future<bool> checkInternetConnection() async {
     var connectivityResult = await Connectivity().checkConnectivity();
@@ -220,50 +221,56 @@ class LoginScreen extends StatelessWidget {
                   ),
                 if (username != null && username!.isEmpty)
                   if (Platform.isAndroid)
-                    TextFormField(
-                      controller: usernameController,
-                      focusNode: usernameFocus,
-                      textInputAction: TextInputAction.next,
-                      onFieldSubmitted: (_) {
-                        FocusScope.of(context).requestFocus(passwordFocus);
-                        fetchPreferences();
-                      },
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(
-                            RegExp(r'^[a-zA-Z][a-zA-Z0-9]*$'), // Allow letters and mixed numbers
-                            replacementString: ''),
-                      ],
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Please enter a username';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(labelText: 'User Name'),
+                    Form(
+                      key: _formKey,
+                      child: TextFormField(
+                        controller: usernameController,
+                        focusNode: usernameFocus,
+                        textInputAction: TextInputAction.next,
+                        onFieldSubmitted: (_) {
+                          FocusScope.of(context).requestFocus(passwordFocus);
+                          fetchPreferences();
+                        },
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'^[a-zA-Z][a-zA-Z0-9]*$'), // Allow letters and mixed numbers
+                              replacementString: ''),
+                        ],
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'Please enter a username';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(labelText: 'User Name'),
+                      ),
                     ),
                 if (username != null && username!.isEmpty)
                   if (Platform.isIOS)
-                    TextFormField(
-                      focusNode: usernameFocus,
-                      textInputAction: TextInputAction.next,
-                      onFieldSubmitted: (_) {
-                        fetchPreferences();
-                      },
-                      onChanged: (username) {
-                        usernameController.text = username;
-                      },
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(
-                            RegExp(r'^[a-zA-Z][a-zA-Z0-9]*$'), // Allow letters and mixed numbers
-                            replacementString: ''),
-                      ],
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Please enter a username';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(labelText: 'User Name'),
+                    Form(
+                      child: TextFormField(
+                        key: _formKey,
+                        focusNode: usernameFocus,
+                        textInputAction: TextInputAction.next,
+                        onFieldSubmitted: (_) {
+                          fetchPreferences();
+                        },
+                        onChanged: (username) {
+                          usernameController.text = username;
+                        },
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'^[a-zA-Z][a-zA-Z0-9]*$'), // Allow letters and mixed numbers
+                              replacementString: ''),
+                        ],
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'Please enter a username';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(labelText: 'User Name'),
+                      ),
                     ),
                 if (username != null && username!.isEmpty)
                   if (Platform.isAndroid)
@@ -300,9 +307,11 @@ class LoginScreen extends StatelessWidget {
                 if (username != null && username!.isEmpty)
                   ElevatedButton(
                     onPressed: () {
-                      _giveFocusToFields();
-                      loginUser(context);
-                      fetchPreferences();
+                      if (_formKey.currentState?.validate() ?? false) {
+                        _giveFocusToFields();
+                        loginUser(context);
+                        fetchPreferences();
+                      }
                     },
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
