@@ -94,7 +94,7 @@ double nowDistance = 999.99;
 double mapZoomLevel = 15;
 
 class MapSampleState extends State<MapSample> {
-  late GoogleMapController mapController;
+  GoogleMapController? mapController;
   LocationData? currentLocation;
   bool locationPermissionGranted = false;
 
@@ -145,7 +145,7 @@ class MapSampleState extends State<MapSample> {
 
       // Update the map camera to show both user and entry
       try {
-        mapController.animateCamera(
+        mapController?.animateCamera(
           CameraUpdate.newLatLngBounds(
             LatLngBounds(
               southwest: LatLng(
@@ -182,7 +182,7 @@ class MapSampleState extends State<MapSample> {
               TappedMarkerInfo(entryMarker: nearestUnexploredEntry!));
         });
       }catch(e){
-        print("NO WAY!");
+        _initMap();
       }
     }
   }
@@ -344,6 +344,9 @@ class MapSampleState extends State<MapSample> {
   @override
   Widget build(BuildContext context) {
     Brightness currentBrightness = MediaQuery.of(context).platformBrightness;
+    if(mapController == null){
+      _initMap();
+    }
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -412,7 +415,7 @@ class MapSampleState extends State<MapSample> {
                   child: GoogleMap(
                     onMapCreated: (controller) {
                       mapController = controller;
-                      setMapTheme(mapController, currentBrightness == Brightness.dark);
+                      setMapTheme(mapController!, currentBrightness == Brightness.dark);
                       updateMapCamera(); // Center the map initially
                       getLoggedInUsername();
                       _fetchLoggedInUsername();
@@ -476,7 +479,7 @@ class MapSampleState extends State<MapSample> {
                         }else{
                           mapZoomLevel += 1;
                         }
-                        mapController.animateCamera(
+                        mapController?.animateCamera(
                           CameraUpdate.zoomTo(mapZoomLevel),
                         );
                         setState(() {});
@@ -499,7 +502,7 @@ class MapSampleState extends State<MapSample> {
                         }else{
                           mapZoomLevel -= 1;
                         }
-                        mapController.animateCamera(
+                        mapController?.animateCamera(
                           CameraUpdate.zoomTo(mapZoomLevel),
                         );
                         setState(() {});
@@ -733,7 +736,7 @@ class MapSampleState extends State<MapSample> {
   }
 
   void updateMapCamera() {
-    mapController.animateCamera(
+    mapController?.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(
           target: LatLng(

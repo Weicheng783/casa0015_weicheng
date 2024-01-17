@@ -38,9 +38,13 @@ class _InternetStatusButtonState extends State<InternetStatusButton> {
         });
       } catch (e) {
         // Unable to reach the server
-        setState(() {
+        try {
+          setState(() {
+            canReachServer = false;
+          });
+        } catch(e){
           canReachServer = false;
-        });
+        }
       }
     } else {
       // No internet connection

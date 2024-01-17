@@ -247,9 +247,7 @@ class LoginScreen extends StatelessWidget {
                     ),
                 if (username != null && username!.isEmpty)
                   if (Platform.isIOS)
-                    Form(
-                      child: TextFormField(
-                        key: _formKey,
+                    TextFormField(
                         focusNode: usernameFocus,
                         textInputAction: TextInputAction.next,
                         onFieldSubmitted: (_) {
@@ -271,7 +269,6 @@ class LoginScreen extends StatelessWidget {
                         },
                         decoration: InputDecoration(labelText: 'User Name'),
                       ),
-                    ),
                 if (username != null && username!.isEmpty)
                   if (Platform.isAndroid)
                     TextField(
@@ -307,7 +304,7 @@ class LoginScreen extends StatelessWidget {
                 if (username != null && username!.isEmpty)
                   ElevatedButton(
                     onPressed: () {
-                      if (_formKey.currentState?.validate() ?? false) {
+                      if (_formKey.currentState?.validate() ?? false || usernameController.text != "") {
                         _giveFocusToFields();
                         loginUser(context);
                         fetchPreferences();
