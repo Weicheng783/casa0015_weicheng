@@ -221,29 +221,26 @@ class LoginScreen extends StatelessWidget {
                   ),
                 if (username != null && username!.isEmpty)
                   if (Platform.isAndroid)
-                    Form(
-                      key: _formKey,
-                      child: TextFormField(
-                        controller: usernameController,
-                        focusNode: usernameFocus,
-                        textInputAction: TextInputAction.next,
-                        onFieldSubmitted: (_) {
-                          FocusScope.of(context).requestFocus(passwordFocus);
-                          fetchPreferences();
-                        },
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(
-                              RegExp(r'^[a-zA-Z][a-zA-Z0-9]*$'), // Allow letters and mixed numbers
-                              replacementString: ''),
-                        ],
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'Please enter a username';
-                          }
-                          return null;
-                        },
-                        decoration: InputDecoration(labelText: 'User Name'),
-                      ),
+                    TextFormField(
+                      controller: usernameController,
+                      focusNode: usernameFocus,
+                      textInputAction: TextInputAction.next,
+                      onFieldSubmitted: (_) {
+                        FocusScope.of(context).requestFocus(passwordFocus);
+                        fetchPreferences();
+                      },
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                            RegExp(r'^[a-zA-Z][a-zA-Z0-9]*$'), // Allow letters and mixed numbers
+                            replacementString: ''),
+                      ],
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please enter a username';
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(labelText: 'User Name'),
                     ),
                 if (username != null && username!.isEmpty)
                   if (Platform.isIOS)
