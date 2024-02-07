@@ -1,5 +1,6 @@
 import 'dart:core';
 
+// Helper functions such as greetings are put here.
 String getGreeting() {
   DateTime now = DateTime.now();
 

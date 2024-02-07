@@ -13,6 +13,7 @@ String? username = '';
 String iosNameInput = '';
 String iosPasswordInput = '';
 
+// Fetch saved preferences such as strings, settings.
 Future<void> fetchPreferences() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   // Read from SharedPreferences
@@ -26,16 +27,19 @@ Future<void> fetchPreferences() async {
 final TextEditingController usernameController = TextEditingController();
 final TextEditingController passwordController = TextEditingController();
 
+// Login Screen
 class LoginScreen extends StatelessWidget {
   final FocusNode usernameFocus = FocusNode();
   final FocusNode passwordFocus = FocusNode();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  // We check internet when in the main page
   Future<bool> checkInternetConnection() async {
     var connectivityResult = await Connectivity().checkConnectivity();
     return connectivityResult != ConnectivityResult.none;
   }
 
+  // No internet UI shown
   Widget buildNoInternetUI(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -69,6 +73,7 @@ class LoginScreen extends StatelessWidget {
     Navigator.pop(context, "");
   }
 
+  // Login user action
   Future<void> loginUser(BuildContext context) async {
     final String loginUrl = 'https://weicheng.app/flutter/login.php';
 
@@ -111,14 +116,10 @@ class LoginScreen extends StatelessWidget {
             controller.closed.then((reason) {
               if (reason == SnackBarClosedReason.timeout) {
                 // SnackBar closed due to timeout
-                // Implement your logic here
-                // For example, save username to SharedPreferences
                 saveUsername(usernameController.text);
                 Navigator.pop(context, usernameController.text);
               } else if (reason == SnackBarClosedReason.dismiss) {
                 // SnackBar closed due to user's action
-                // Implement your logic here
-                // For example, clear password if it's incorrect
                 _forgiveFocusToFields();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -134,6 +135,7 @@ class LoginScreen extends StatelessWidget {
           saveUsername(usernameController.text); // Save username to SharedPreferences
           Navigator.pop(context, usernameController.text);
         } else {
+          // Login Unsuccessful
           _forgiveFocusToFields();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -197,6 +199,7 @@ class LoginScreen extends StatelessWidget {
         backgroundColor: Platform.isIOS ? null : Theme.of(context).colorScheme.secondaryContainer,
       ),
       resizeToAvoidBottomInset: false,
+      // The following is the widget logic for: logged in, guest modes.
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -428,6 +431,7 @@ class LoginScreen extends StatelessWidget {
   }
 }
 
+// a test case for user saving details
 Future<void> testSharedPreferences() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
 

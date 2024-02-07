@@ -14,11 +14,13 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'mapHelper.dart';
 
+// This is the submit trail page when user clickes the FAB.
 class SubmitTrailPage extends StatefulWidget {
   @override
   _SubmitTrailPageState createState() => _SubmitTrailPageState();
 }
 
+// These are the states managed by the page as a stateful widget
 class _SubmitTrailPageState extends State<SubmitTrailPage> {
   TextEditingController contentController = TextEditingController();
   GoogleMapController? _mapController;
@@ -88,6 +90,7 @@ class _SubmitTrailPageState extends State<SubmitTrailPage> {
     }
   }
 
+  // Trail submission logic
   Future<void> _submitTrail() async {
     setState(() {
       isUploading = true;
@@ -95,6 +98,7 @@ class _SubmitTrailPageState extends State<SubmitTrailPage> {
 
     _getLocation();
 
+    // Enforcing location fetched correctly
     if (currentLocation.longitude == 0.0 && currentLocation.latitude == 0.0) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -149,6 +153,7 @@ class _SubmitTrailPageState extends State<SubmitTrailPage> {
     }
   }
 
+  // Photos uploading logic
   Future<void> _uploadPhotos(int entryId) async {
     for (int i = 0; i < selectedPhotos.length; i++) {
       File photo = selectedPhotos[i];
@@ -340,6 +345,7 @@ Future<void> _saveImageToGallery(String imagePath) async {
 }
 
 Future<File> adjustImageRotation(String imagePath) async {
+  // This function is helpful when iOS devices has different image exif data
   final sourceFile = File(imagePath);
   Uint8List imageData = await sourceFile.readAsBytes();
 

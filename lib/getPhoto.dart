@@ -7,7 +7,9 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+// Photo details class
 class Photo {
+  // Properties of a photo
   final String username;
   final String session_id;
   final String pictureAddress;
@@ -32,27 +34,33 @@ class Photo {
   }
 }
 
+// Stateful widget to get and display photos
 class GetPhoto extends StatefulWidget {
   final int entryId;
-
+  // Constructor with required parameter
   GetPhoto({required this.entryId});
 
   @override
   _GetPhotoState createState() => _GetPhotoState();
 }
 
+// State class for GetPhoto widget
 class _GetPhotoState extends State<GetPhoto> {
+  // State variables and initialization
   var _photoList = <Photo>[];
   bool loadPhotosOverCellular = false;
 
   @override
   void initState() {
+    // Initialize state when the widget is created
     super.initState();
     _loadUserPreferences();
     _checkConnection();
   }
 
+  // Method to fetch photo data from the server
   Future<void> fetchData() async {
+    // Fetch data using HTTP request
     try {
       final response = await http.get(
         Uri.parse('https://weicheng.app/flutter/getPhoto.php')
@@ -77,19 +85,25 @@ class _GetPhotoState extends State<GetPhoto> {
     }
   }
 
+  // Method to load user preferences from SharedPreferences
   Future<void> _loadUserPreferences() async {
+    // Load user preferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       loadPhotosOverCellular = prefs.getBool('loadPhotosOverCellular') ?? false;
     });
   }
 
+  // Method to save user preferences to SharedPreferences
   Future<void> _saveUserPreferences(bool value) async {
+    // Save user preferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('loadPhotosOverCellular', value);
   }
 
+  // Method to check internet connection and load photos accordingly
   Future<void> _checkConnection() async {
+    // Check connectivity and load photos based on conditions
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult == ConnectivityResult.mobile && !loadPhotosOverCellular) {
       // Do not load photos over cellular
@@ -101,7 +115,9 @@ class _GetPhotoState extends State<GetPhoto> {
     }
   }
 
+  // Method to build user widgets based on photo data
   List<Widget> _buildUserWidgets() {
+    // Build widgets for each user
     List<Widget> userWidgets = [];
 
     // Group photos by username and session_id
@@ -129,7 +145,9 @@ class _GetPhotoState extends State<GetPhoto> {
     return userWidgets;
   }
 
+  // Method to build a widget for a photo session
   Widget _buildSessionWidget(String username, String session_id, List<Photo> photos) {
+    // Build a widget for a photo session
     return Container(
       padding: EdgeInsets.all(5.0),
       decoration: BoxDecoration(
@@ -208,13 +226,17 @@ class _GetPhotoState extends State<GetPhoto> {
     );
   }
 
+  // Method to change the orientation of an image
   void _changeImageOrientation(Photo photo) {
+    // Change the image orientation
     setState(() {
       photo.rotation += 90;
     });
   }
 
+  // Method to show a full-screen dialog with a photo gallery
   void _showFullScreenDialog(List<Photo> photos, int initialIndex, int initialRotation) {
+    // Show a full-screen dialog with a photo gallery
     showDialog(
       useSafeArea: false,
       context: context,
@@ -250,13 +272,16 @@ class _GetPhotoState extends State<GetPhoto> {
     );
   }
 
+  // Method to open a photo in the browser
   void _openPhotoInBrowser(Photo photo) async {
+    // Open a photo in the browser
     final url = 'https://weicheng.app/flutter/pics/${photo.pictureAddress}.jpg';
     launchUrl(Uri.parse(url));
   }
 
   @override
   Widget build(BuildContext context) {
+    // Build the main widget structure
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Column(

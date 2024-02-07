@@ -6,17 +6,20 @@ import 'package:http/http.dart' as http;
 
 import 'main.dart';
 
+// Feedback Page Constructor
 class FeedbackPage extends StatefulWidget {
   @override
   _FeedbackPageState createState() => _FeedbackPageState();
 }
 
+// Feedback Page State Constructor
 class _FeedbackPageState extends State<FeedbackPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _feedbackController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    // The following is the page content
     return Scaffold(
       appBar: AppBar(
         title: const Row(
@@ -109,6 +112,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
     );
   }
 
+  // This is device details fetched from users' devices
   Future<String> _getDeviceDetails() async {
     String deviceType = await _getDeviceType();
     String deviceModel = await _getDeviceModel();
@@ -140,6 +144,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
     return 'Unknown';
   }
 
+  // Feedback submitter
   Future<void> _submitFeedback() async {
     String deviceDetails = await _getDeviceDetails();
 

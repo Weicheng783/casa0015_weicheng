@@ -1,7 +1,10 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+// This function acts as a whole theme set-up for the map
 void setMapTheme(GoogleMapController mapController, bool bool) {
   if(bool){
+    // The style is encoded in such a JSON form
+    // If the user is toggled dark mode
     mapController!.setMapStyle('''
                       [
                             {
@@ -238,10 +241,12 @@ void setMapTheme(GoogleMapController mapController, bool bool) {
                           ]
                       ''');
   }else{
+    // If the user is toggled light mode
     mapController!.setMapStyle('''[]''');
   }
 }
 
+// Each marker shown in the map has the following properties
 class EntryMarker {
   final String entryId;
   final String latitude;
@@ -277,6 +282,7 @@ class EntryMarker {
     );
   }
 
+  // We need to call toMarker to convert to show-able marker
   Marker toMarker() {
     return Marker(
       markerId: MarkerId(entryId.toString()),

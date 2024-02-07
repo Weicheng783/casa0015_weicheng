@@ -7,6 +7,7 @@ class InternetStatusButton extends StatefulWidget {
   _InternetStatusButtonState createState() => _InternetStatusButtonState();
 }
 
+// Check internet status when user entering the app
 class _InternetStatusButtonState extends State<InternetStatusButton> {
   bool isOnline = true;
   bool canReachServer = true;

@@ -20,16 +20,20 @@ import 'mapHelper.dart';
 import 'navigation.dart';
 import 'login.dart'; // Import the login screen file
 
+// App version information
 String revision_ver = "3.4";
 String build_ver = "240207";
 
+// Main entry point of the application
 void main() {
   runApp(const MyApp());
 }
 
+// MyApp class, which represents the overall application
 class MyApp extends StatelessWidget {
   const MyApp({Key? key});
 
+  // Default color schemes for light and dark themes
   static final _defaultLightColorScheme =
   ColorScheme.fromSwatch(primarySwatch: Colors.blue);
 
@@ -38,9 +42,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Determine current brightness and platform (iOS or not)
     Brightness currentBrightness = MediaQuery.of(context).platformBrightness;
     bool isIOS = Theme.of(context).platform == TargetPlatform.iOS;
 
+    // Build the MaterialApp with dynamic color schemes
     return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme) {
       return MaterialApp(
         title: 'Story Trail',
@@ -97,6 +103,7 @@ class MyApp extends StatelessWidget {
     });
   }
 
+  // Check if the user is logged in
   Future<bool> isLoggedIn() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     fetchPreferences();
@@ -104,6 +111,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+// MyHomePage class, representing the main content of the app
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title});
   final String title;
@@ -112,6 +120,7 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+// Variables to store logged-in username and fetch user preferences
 String loggedInUsername = '';
 
 Future<void> getLoggedInUsername() async {
@@ -122,6 +131,7 @@ Future<void> getLoggedInUsername() async {
   }
 }
 
+// State class for MyHomePage
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
@@ -152,6 +162,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  // Increment the counter
   void _incrementCounter() {
     setState(() {
       _counter++;
@@ -184,7 +195,7 @@ class _MyHomePageState extends State<MyHomePage> {
         }
         return true; // Allow the default back button behavior on the home page
       },
-      child: Scaffold(
+      child: Scaffold( // Bottom Navigation Bar of the screen
         bottomNavigationBar: NavigationBar(
           onDestinationSelected: (int index) {
             setState(() {
@@ -375,6 +386,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ),
 
+                        // Auxiliary information such as Author info, etc.
                         Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -545,11 +557,13 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
+// Log out logic
 void logoutUser() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.setString('username', '');
 }
 
+// Entry Details Constructor
 class EntryDetailsWidget extends StatelessWidget {
   final EntryMarker entryMarker;
 

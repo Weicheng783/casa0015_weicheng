@@ -16,6 +16,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'main.dart';
 import 'mapHelper.dart';
 
+// This is the location service as a whole
 class LocationService {
   static Future<LocationData> getLocation() async {
     Location location = Location();
@@ -28,6 +29,7 @@ class LocationService {
     }
   }
 
+  // Pops-up a window for requesting user location permission
   static Future<bool> requestLocationPermission() async {
     Location location = Location();
 
@@ -54,6 +56,7 @@ class LocationService {
   }
 }
 
+// MapSample widget, a test for the map implementation
 class MapSample extends StatefulWidget {
   @override
   MapSampleState createState() => MapSampleState();
@@ -77,12 +80,14 @@ class LocationInfo extends StatelessWidget {
   }
 }
 
+// When one of the markers is tapped.
 class TappedMarkerInfo {
   final EntryMarker entryMarker;
 
   TappedMarkerInfo({required this.entryMarker});
 }
 
+// The following variables, constants are serving the functionality of detecting nearest distance.
 List<EntryMarker> entryMarkers = [];
 Set<MarkerId> tappedMarkerIds = Set();
 Set<TappedMarkerInfo> tappedMarkerInfos = Set();
@@ -93,6 +98,7 @@ bool showButtonNow = false;
 double nowDistance = 999.99;
 double mapZoomLevel = 15;
 
+// The main map markers logic
 class MapSampleState extends State<MapSample> {
   GoogleMapController? mapController;
   LocationData? currentLocation;
@@ -201,6 +207,7 @@ class MapSampleState extends State<MapSample> {
 
   bool commentBoxShown = false;
 
+  // The following code performs markers distance checking
   Future<void> _checkNearbyMarkers() async {
     Timer.periodic(Duration(seconds: 10), (timer) async {
       if(!commentBoxShown){
@@ -258,7 +265,6 @@ class MapSampleState extends State<MapSample> {
     });
   }
 
-
   double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
     const double radius = 6371; // Earth's radius in kilometers
     double dLat = _toRadians(lat2 - lat1);
@@ -277,6 +283,7 @@ class MapSampleState extends State<MapSample> {
     return degree * pi / 180;
   }
 
+  // Logged-in user names fetching
   Future<void> _fetchLoggedInUsername() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? username = prefs.getString('username');
@@ -539,6 +546,7 @@ class MapSampleState extends State<MapSample> {
                 ),
               ),
 
+              // The following shows the details in the card, below the map
               NavigationHelper.buildEntryDetailsCard(tappedMarkerIds, entryMarkers),
               if (showButtonNow && username!='' && nowDistance <= 50.0 && nowDistance != 0.0)
                 ElevatedButton(
@@ -605,6 +613,7 @@ class MapSampleState extends State<MapSample> {
                   child: Text('Register & Congratulations!'),
                 ),
 
+              // The button for auto find mode
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children:[
@@ -735,6 +744,7 @@ class MapSampleState extends State<MapSample> {
     }
   }
 
+  // Map Center Updates
   void updateMapCamera() {
     mapController?.animateCamera(
       CameraUpdate.newCameraPosition(
@@ -750,6 +760,7 @@ class MapSampleState extends State<MapSample> {
   }
 }
 
+// Random String for easter egg
 String _generateRandomString() {
   const String characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#%^&*()-=_+[]{}|;:,.<>?';
   const int length = 10;
@@ -799,7 +810,6 @@ String _getCurrentDate() {
   String formattedDate = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
   return formattedDate;
 }
-
 
 // Check if the user has explored or owned the entry
 bool hasExploredOrOwnedEntry(List<Map<String, dynamic>> userHistory, String entryId) {
@@ -942,6 +952,7 @@ class EntryDetailsWidget extends StatelessWidget {
 
 }
 
+// Get users history by using the following structure
 class UserHistory {
   final String username;
   final List<Map<String, dynamic>> entriesCreated;

@@ -9,6 +9,7 @@ import 'dart:io' show File, Platform;
 import 'getPhoto.dart';
 import 'mapHelper.dart';
 
+// This is the users detail page when user clicks my account
 class UserDetailsPage extends StatefulWidget {
   final String username;
 
@@ -20,6 +21,7 @@ class UserDetailsPage extends StatefulWidget {
 
 List<MapEntry> displayedEntries = [];
 
+// These are necessary page states used to cover user details
 class _UserDetailsPageState extends State<UserDetailsPage> {
   List<MapEntry> entriesCreated = [];
   List<MapEntry> entriesExplored = [];
@@ -76,6 +78,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     }
   }
 
+  // HTTP POST requests, parsing, showing.
   Future<void> fetchEntryDetails(MapEntry entry, String username) async {
     final response = await http.post(
       Uri.parse("https://weicheng.app/flutter/getEntry.php"),
@@ -154,6 +157,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Widget tree building process
     Brightness currentBrightness = MediaQuery.of(context).platformBrightness;
 
     return Scaffold(
@@ -356,6 +360,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     );
   }
 
+  // Location markers for the map
   Set<Marker> createMarkers() {
     Set<Marker> markers = Set();
 
@@ -384,6 +389,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   }
 }
 
+// Map Entry data structure
 class MapEntry {
   String entryId;
   String long;
