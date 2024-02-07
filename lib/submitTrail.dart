@@ -235,7 +235,7 @@ class _SubmitTrailPageState extends State<SubmitTrailPage> {
               ),
             if (!isGuestMode)
               Text(
-                "Current Date and Time: ${currentDate.toLocal().toString().split('.')[0]}",
+                "Current Date and Time: \n${currentDate.toLocal().toString().split('.')[0]}",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             if (!isGuestMode)
@@ -243,6 +243,10 @@ class _SubmitTrailPageState extends State<SubmitTrailPage> {
                 focusNode: FocusNode(),
                 decoration: InputDecoration(labelText: "Content"),
                 maxLines: 10,
+                autofocus: true,
+                onEditingComplete:() {
+                  FocusScope.of(context).unfocus();
+                },
                 onChanged: (content) {
                   contentController.text = content;
                 },
@@ -305,7 +309,7 @@ class _SubmitTrailPageState extends State<SubmitTrailPage> {
                 onPressed: isUploading ? null : () async => await _pickPhotos(),
                 child: Text("Select Photos"),
               ),
-            if(!isGuestMode)
+            if(!isGuestMode && Platform.isAndroid)
               ElevatedButton(
                 onPressed: isUploading ? null : () => _openCameraApp(context),
                 child: Text("Open Camera & Return"),

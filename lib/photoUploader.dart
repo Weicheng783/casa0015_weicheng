@@ -129,10 +129,11 @@ class _PhotoUploadPageState extends State<PhotoUploadPage> {
             ],
           ),
         ),
-        ElevatedButton(
-          onPressed: isUploading ? null : () => _openCameraApp(context),
-          child: Text("Open Camera & Return"),
-        ),
+        if(Platform.isAndroid)
+          ElevatedButton(
+            onPressed: isUploading ? null : () => _openCameraApp(context),
+            child: Text("Open Camera & Return"),
+          ),
         SizedBox(height: 20),
         if (_selectedPhotos.isNotEmpty)
           ElevatedButton(
