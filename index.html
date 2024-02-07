@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Trail App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<header>
+    <img src="assets/story_trail.png" alt="Story Trail App">
+    <h1>Story Trail App</h1>
+</header>
+
+<section>
+    <img src="assets/ad1.jpg" alt="Story Trail Showcase">
+    <p>Welcome to Story Trail, an innovative cross-platform mobile app that allows users to share their memories
+        and photos by geotagging based on real locations. Explore the world around you and discover the stories
+        hidden in every corner.</p>
+</section>
+
+<section>
+    <h2>About</h2>
+    <p>Story Trail gives users the ability to share their memories and photos by geotagging them based on real
+        locations. Other users can explore these memories by walking nearby, unlocking a unique and immersive
+        experience. The app includes features such as user account management for saving exploration history,
+        photo sharing based on real locations, and the ability to explore memories shared by others.</p>
+    <ul>
+        <li><strong>Author:</strong> Weicheng</li>
+        <li><strong>Collaboration:</strong> Weicheng collaborated with ChatGPT and the GPT-3.5 model to create
+            this unique experience.</li>
+        <li><strong>Technology Stack:</strong> Written entirely in Dart and developed using Flutter.</li>
+    </ul>
+</section>
+
+<section>
+    <h2>UI Design</h2>
+    <p>The Story Trail app follows a visually appealing design language:</p>
+    <h3>Android</h3>
+    <p>The app utilizes Material3 UI design language on Android devices, providing a modern and consistent user
+        experience.
+        <br>Learn Material Design (MD-Google): <a
+                href="https://m3.material.io/">https://m3.material.io/</a></p>
+    <h3>iOS</h3>
+    <p>On iOS-based devices, Story Trail adheres to the Human Interface Guidelines and incorporates Cupertino
+        styled widgets, ensuring a seamless and native feel for iOS users.
+        <br>Learn Human Interface Guidelines (HIG-Apple): <a
+                href="https://developer.apple.com/design/human-interface-guidelines">https://developer.apple.com/design/human-interface-guidelines</a></p>
+</section>
+
+<section>
+    <h2>Features</h2>
+    <ul>
+        <li><strong>Geotagging Memories:</strong> Share memories and photos by geotagging them to real
+            locations.</li>
+        <li><strong>Explore Nearby Memories:</strong> Unlock and explore memories by walking near their
+            geotagged locations.</li>
+        <li><strong>User Account Management:</strong> Save exploration history and manage your account for a
+            personalized experience.</li>
+        <li><strong>Photo Sharing:</strong> Share and explore memories through photos linked to real-world
+            locations.</li>
+    </ul>
+</section>
+
+<section>
+    <h2>Installation</h2>
+    <p>To install and run the Story Trail app, follow these steps:</p>
+    <ol>
+        <li>Clone the repository: <code>git clone https://github.com/Weicheng783/casa0015_weicheng.git</code></li>
+        <li>Navigate to the project directory: <code>cd casa0015_weicheng</code></li>
+        <li>Change the file name <code>AndroidManifest_CHANGE.xml</code> to <code>AndroidManifest.xml</code>, your
+            own configuration will be git-ignored.</li>
+        <li>For iOS builds, change the file in <code>ios/Runner/AppDelegate_CHANGE.swift</code> to
+            <code>AppDelegate.swift</code>.</li>
+        <li>Install dependencies: <code>flutter pub get</code>.</li>
+        <li>For Android, add your Google Map Api Key of value to the file
+            <code>android/app/src/main/AndroidManifest.xml</code> in the field of
+            <code>com.google.android.geo.API_KEY</code>. For iOS, add it in <code>ios/Runner/AppDelegate.swift</code>.
+        </li>
+        <li>Run the app: <code>flutter run</code> for debug or <code>flutter run --release</code> on iOS devices
+            (this enables Desktop launch).</li>
+    </ol>
+    <p>Make sure you have Flutter and Dart installed on your machine. For more information, visit <a
+            href="https://flutter.dev/docs/get-started/install">Flutter</a>.</p>
+</section>
+
+<section>
+    <h2>License</h2>
+    <p>This project is licensed under the <a href="LICENSE.md">MIT License</a>.</p>
+</section>
+
+<section>
+    <h2>Contact Details</h2>
+    <p>Feel free to reach out if you have any questions or want to contribute to the app:</p>
+    <ul>
+        <li><strong>Weicheng:</strong> <a href="https://github.com/Weicheng783">GitHub</a></li>
+        <li><strong>ChatGPT:</strong> <a href="https://www.openai.com/">OpenAI</a></li>
+        <li><strong>Chat Samples:</strong> <a
+                href="https://chat.openai.com/share/a7a6bf19-d9d7-419a-8451-01ee862afea2">Sample 1</a>, <a
+                href="https://chat.openai.com/share/cc3055a7-351d-4df4-bbce-7fe59d642e6a">Sample 2</a>, <a
+                href="https://chat.openai.com/share/5f15fa4c-7582-4ae8-89b1-7ce6b7c9d7e0">Sample 3</a></li>
+        <li>if you want to see other chat histories, please contact me.</li>
+    </ul>
+    <p>Your feedback is highly appreciated! 🚀📱😄</p>
+</section>
+
+<section>
+    <h2>Dependencies</h2>
+    <p>The Story Trail app relies on the following packages:</p>
+    <pre>
+dependencies:
+  dynamic_color: ^1.4.0
+  google_maps_flutter: ^2.0.10
+  location: ^5.0.3
+  sensors_plus: ^4.0.2
+  http: ^1.1.2
+  connectivity_plus: ^5.0.2
+  shared_preferences: ^2.2.2
+  vibration: ^1.8.4
+  audioplayers: ^5.2.1
+  image_picker: ^1.0.7
+  restart_app: ^1.2.1
+  photo_view: ^0.14.0
+  url_launcher: ^6.2.3
+  flutter_exif_rotation: ^0.5.1
+  device_info_plus: ^9.1.1
+  image: ^4.1.4
+  exif: ^3.3.0
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^2.0.0
+        </pre>
+</section>
+
+</body>
+
+</html>
