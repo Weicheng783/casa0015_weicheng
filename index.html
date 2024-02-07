@@ -6,7 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Story Trail App</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
+
     <style>
+        :root {
+            --primary-color: #2196F3;
+            --background-color: #f5f5f5;
+            --text-color: #333;
+            --accent-color: #FF4081;
+        }
+
+        .dark-mode {
+            --primary-color: #607D8B;
+            --background-color: #263238;
+            --text-color: #FFFFFF;
+            --accent-color: #FF4081;
+        }
+
         body {
             font-family: 'Roboto', sans-serif;
             margin: 0;
@@ -69,39 +84,22 @@
             overflow-x: auto;
         }
     </style>
-
-    <style>
-        :root {
-            --primary-color: #2196F3;
-            --background-color: #f5f5f5;
-            --text-color: #333;
-            --accent-color: #FF4081;
-        }
-
-        .dark-mode {
-            --primary-color: #607D8B;
-            --background-color: #263238;
-            --text-color: #FFFFFF;
-            --accent-color: #FF4081;
-        }
-
-        input[type="color"] {
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            border: none;
-            margin: 0 5px;
-            padding: 0;
-            vertical-align: middle;
-        }
-
-        label {
-            font-weight: bold;
-        }
-    </style>
 </head>
 
 <body>
+
+<section>
+    <h2>Theme Customization</h2>
+    <label for="primary-color">Primary Color:</label>
+    <input type="color" id="primary-color" onchange="handleColorChange('--primary-color', this.value)">
+    <label for="background-color">Background Color:</label>
+    <input type="color" id="background-color" onchange="handleColorChange('--background-color', this.value)">
+    <label for="text-color">Text Color:</label>
+    <input type="color" id="text-color" onchange="handleColorChange('--text-color', this.value)">
+    <label for="accent-color">Accent Color:</label>
+    <input type="color" id="accent-color" onchange="handleColorChange('--accent-color', this.value)">
+    <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+</section>
 
 <header>
     <img src="assets/story_trail.png" alt="Story Trail App">
@@ -243,19 +241,6 @@ dev_dependencies:
             document.documentElement.style.setProperty(variable, color);
         };
     </script>
-
-<section>
-    <h2>Theme Customization</h2>
-    <label for="primary-color">Primary Color:</label>
-    <input type="color" id="primary-color" onchange="handleColorChange('--primary-color', this.value)">
-    <label for="background-color">Background Color:</label>
-    <input type="color" id="background-color" onchange="handleColorChange('--background-color', this.value)">
-    <label for="text-color">Text Color:</label>
-    <input type="color" id="text-color" onchange="handleColorChange('--text-color', this.value)">
-    <label for="accent-color">Accent Color:</label>
-    <input type="color" id="accent-color" onchange="handleColorChange('--accent-color', this.value)">
-    <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
-</section>
 
 </body>
 
