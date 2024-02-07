@@ -11,12 +11,14 @@
             font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f5f5f5;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
         }
 
         header {
             text-align: center;
-            background-color: #2196F3;
+            background-color: var(--primary-color);
             color: white;
             padding: 20px;
         }
@@ -44,7 +46,7 @@
         }
 
         h2 {
-            color: #2196F3;
+            color: var(--primary-color);
         }
 
         ul {
@@ -65,6 +67,36 @@
             padding: 10px;
             border-radius: 8px;
             overflow-x: auto;
+        }
+    </style>
+
+    <style>
+        :root {
+            --primary-color: #2196F3;
+            --background-color: #f5f5f5;
+            --text-color: #333;
+            --accent-color: #FF4081;
+        }
+
+        .dark-mode {
+            --primary-color: #607D8B;
+            --background-color: #263238;
+            --text-color: #FFFFFF;
+            --accent-color: #FF4081;
+        }
+
+        input[type="color"] {
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            border: none;
+            margin: 0 5px;
+            padding: 0;
+            vertical-align: middle;
+        }
+
+        label {
+            font-weight: bold;
         }
     </style>
 </head>
@@ -200,6 +232,29 @@ dev_dependencies:
 
   flutter_lints: ^2.0.0
         </pre>
+</section>
+
+<script>
+        const toggleDarkMode = () => {
+            document.body.classList.toggle('dark-mode');
+        };
+
+        const handleColorChange = (variable, color) => {
+            document.documentElement.style.setProperty(variable, color);
+        };
+    </script>
+
+<section>
+    <h2>Theme Customization</h2>
+    <label for="primary-color">Primary Color:</label>
+    <input type="color" id="primary-color" onchange="handleColorChange('--primary-color', this.value)">
+    <label for="background-color">Background Color:</label>
+    <input type="color" id="background-color" onchange="handleColorChange('--background-color', this.value)">
+    <label for="text-color">Text Color:</label>
+    <input type="color" id="text-color" onchange="handleColorChange('--text-color', this.value)">
+    <label for="accent-color">Accent Color:</label>
+    <input type="color" id="accent-color" onchange="handleColorChange('--accent-color', this.value)">
+    <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
 </section>
 
 </body>
