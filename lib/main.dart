@@ -20,8 +20,8 @@ import 'mapHelper.dart';
 import 'navigation.dart';
 import 'login.dart'; // Import the login screen file
 
-String revision_ver = "3.3";
-String build_ver = "240205";
+String revision_ver = "3.4";
+String build_ver = "240207";
 
 void main() {
   runApp(const MyApp());

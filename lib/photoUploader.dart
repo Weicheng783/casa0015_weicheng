@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:story.trail/login.dart';
 import 'package:story.trail/main.dart';
@@ -128,6 +129,10 @@ class _PhotoUploadPageState extends State<PhotoUploadPage> {
             ],
           ),
         ),
+        ElevatedButton(
+          onPressed: isUploading ? null : () => _openCameraApp(context),
+          child: Text("Open Camera & Return"),
+        ),
         SizedBox(height: 20),
         if (_selectedPhotos.isNotEmpty)
           ElevatedButton(
@@ -159,5 +164,32 @@ class _PhotoUploadPageState extends State<PhotoUploadPage> {
           ),
       ],
     );
+  }
+}
+
+void _openCameraApp(BuildContext context) async {
+  final XFile? image = await ImagePicker().pickImage(source: ImageSource.camera);
+
+  if (image != null) {
+    // Save the captured image to the gallery
+    await _saveImageToGallery(image.path);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Image saved to gallery."),
+        duration: Duration(seconds: 2),
+      ),
+    );
+    // Navigate back to the previous page
+    // Navigator.pop(context);
+  }
+}
+
+Future<void> _saveImageToGallery(String imagePath) async {
+  final result = await ImageGallerySaver.saveFile(imagePath);
+
+  if (result != null && result.isNotEmpty) {
+    print("Image saved to gallery");
+  } else {
+    print("Failed to save image to gallery");
   }
 }

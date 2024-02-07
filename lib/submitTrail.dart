@@ -3,12 +3,14 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io' show File, Platform;
 import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image/image.dart' as img;
 import 'package:exif/exif.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'mapHelper.dart';
 
@@ -298,10 +300,42 @@ class _SubmitTrailPageState extends State<SubmitTrailPage> {
                 onPressed: isUploading ? null : () async => await _pickPhotos(),
                 child: Text("Select Photos"),
               ),
+            if(!isGuestMode)
+              ElevatedButton(
+                onPressed: isUploading ? null : () => _openCameraApp(context),
+                child: Text("Open Camera & Return"),
+              ),
           ],
         ),
       ),
     );
+  }
+}
+
+void _openCameraApp(BuildContext context) async {
+  final XFile? image = await ImagePicker().pickImage(source: ImageSource.camera);
+
+  if (image != null) {
+    // Save the captured image to the gallery
+    await _saveImageToGallery(image.path);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Image saved to gallery."),
+        duration: Duration(seconds: 2),
+      ),
+    );
+    // Navigate back to the previous page
+    // Navigator.pop(context);
+  }
+}
+
+Future<void> _saveImageToGallery(String imagePath) async {
+  final result = await ImageGallerySaver.saveFile(imagePath);
+
+  if (result != null && result.isNotEmpty) {
+    print("Image saved to gallery");
+  } else {
+    print("Failed to save image to gallery");
   }
 }
 
