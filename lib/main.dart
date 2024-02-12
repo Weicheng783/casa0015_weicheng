@@ -21,8 +21,8 @@ import 'navigation.dart';
 import 'login.dart'; // Import the login screen file
 
 // App version information
-String revision_ver = "3.5";
-String build_ver = "240207";
+String revision_ver = "3.6";
+String build_ver = "240212";
 
 // Main entry point of the application
 void main() {
@@ -57,7 +57,7 @@ class MyApp extends StatelessWidget {
                 ? Brightness.dark
                 : Brightness.light,
             // Add iOS-specific styles here
-            primaryColor: Colors.blue, // Adjust iOS primary color
+            primaryColor: Colors.deepPurpleAccent, // Adjust iOS primary color
             barBackgroundColor: currentBrightness == Brightness.dark
                 ? Colors.grey[900] // Adjust background color for dark mode
                 : null, // Use default background color for light mode
