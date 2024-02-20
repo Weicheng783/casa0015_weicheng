@@ -21,8 +21,8 @@ import 'navigation.dart';
 import 'login.dart'; // Import the login screen file
 
 // App version information
-String revision_ver = "3.6";
-String build_ver = "240212";
+String revision_ver = "3.7";
+String build_ver = "240219";
 
 // Main entry point of the application
 void main() {
@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
 
   // Default color schemes for light and dark themes
   static final _defaultLightColorScheme =
-  ColorScheme.fromSwatch(primarySwatch: Colors.blue);
+  ColorScheme.fromSwatch(primarySwatch: Colors.grey);
 
   static final _defaultDarkColorScheme = ColorScheme.fromSwatch(
       primarySwatch: Colors.blue, brightness: Brightness.dark);

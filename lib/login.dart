@@ -50,7 +50,7 @@ class LoginScreen extends StatelessWidget {
           color: Theme.of(context).colorScheme.error,
         ),
         SizedBox(height: 16.0),
-        Text(
+        const Text(
           "No Internet Connection",
           style: TextStyle(
             fontSize: 20.0,
@@ -59,7 +59,7 @@ class LoginScreen extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         SizedBox(height: 8.0),
-        Text(
+        const Text(
           "Please check your internet connection and try again.",
           textAlign: TextAlign.center,
         ),
@@ -75,7 +75,7 @@ class LoginScreen extends StatelessWidget {
 
   // Login user action
   Future<void> loginUser(BuildContext context) async {
-    final String loginUrl = 'https://weicheng.app/flutter/login.php';
+    const String loginUrl = 'https://weicheng.app/flutter/login.php';
 
     final Map<String, String> body = {
       'username': usernameController.text,
@@ -108,7 +108,7 @@ class LoginScreen extends StatelessWidget {
           controller = scaffoldMessenger.showSnackBar(
             SnackBar(
               content: Text(data['message']),
-              duration: Duration(seconds: 2),
+              duration: const Duration(seconds: 2),
             ),
           );
 
