@@ -215,6 +215,7 @@ class _SubmitTrailPageState extends State<SubmitTrailPage> {
         backgroundColor: Platform.isIOS ? null : Theme.of(context).colorScheme.secondaryContainer,
       ),
       body: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -243,10 +244,10 @@ class _SubmitTrailPageState extends State<SubmitTrailPage> {
                 focusNode: FocusNode(),
                 decoration: InputDecoration(labelText: "Content"),
                 maxLines: 10,
-                autofocus: true,
-                onEditingComplete:() {
-                  FocusScope.of(context).unfocus();
-                },
+                // autofocus: true,
+                // onEditingComplete:() {
+                //   FocusScope.of(context).unfocus();
+                // },
                 onChanged: (content) {
                   contentController.text = content;
                 },

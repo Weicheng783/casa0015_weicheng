@@ -201,6 +201,7 @@ class LoginScreen extends StatelessWidget {
       resizeToAvoidBottomInset: false,
       // The following is the widget logic for: logged in, guest modes.
       body: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Center(
