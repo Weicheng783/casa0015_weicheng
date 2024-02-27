@@ -8,6 +8,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:story.trail/submitTrail.dart';
+import 'package:story.trail/temperature_table.dart';
 import 'package:story.trail/userDetails.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -21,8 +22,8 @@ import 'navigation.dart';
 import 'login.dart'; // Import the login screen file
 
 // App version information
-String revision_ver = "3.8";
-String build_ver = "240224";
+String revision_ver = "4.0";
+String build_ver = "240227";
 
 // Main entry point of the application
 void main() {
@@ -213,6 +214,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   context,
                   MaterialPageRoute(builder: (context) => UserDetailsPage(username: loggedInUsername,)),
                 );
+              }else if(currentPageIndex == 3){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => TemperatureTable()),
+                );
               }
             });
           },
@@ -246,6 +252,11 @@ class _MyHomePageState extends State<MyHomePage> {
             NavigationDestination(
               icon: Icon(Icons.account_circle),
               label: 'Account',
+            ),
+            NavigationDestination(
+              selectedIcon: Icon(Icons.sensors),
+              icon: Icon(Icons.sensors),
+              label: 'Controls',
             ),
           ],
         ),
