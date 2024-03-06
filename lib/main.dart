@@ -22,8 +22,8 @@ import 'navigation.dart';
 import 'login.dart'; // Import the login screen file
 
 // App version information
-String revision_ver = "4.0";
-String build_ver = "240227";
+String revision_ver = "4.1";
+String build_ver = "240306";
 
 // Main entry point of the application
 void main() {
@@ -256,7 +256,7 @@ class _MyHomePageState extends State<MyHomePage> {
             NavigationDestination(
               selectedIcon: Icon(Icons.sensors),
               icon: Icon(Icons.sensors),
-              label: 'Controls',
+              label: 'Sensors',
             ),
           ],
         ),
@@ -419,7 +419,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                               Center(
                                 child: Text(
-                                  "Weicheng Personal Project No.240109",
+                                  "Weicheng Project No.240109",
                                   style: const TextStyle(
                                     fontFamily: 'caveat',
                                     fontWeight: FontWeight.w500,
@@ -428,16 +428,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                 ),
                               ),
                               SizedBox(height: 20),
-                              Center(
-                                child: Text(
-                                  "The first version is done by co-piloting\n with GPT3.5 between 240109 and 240114.",
-                                  style: const TextStyle(
-                                    fontFamily: 'caveat',
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 mainAxisSize: MainAxisSize.min,
@@ -500,26 +490,6 @@ class _MyHomePageState extends State<MyHomePage> {
                               Center(
                                 child: Text(
                                   "Always making stuff with U & Heart💕",
-                                  style: const TextStyle(
-                                    fontFamily: 'caveat',
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ),
-                              Center(
-                                child: Text(
-                                  "Crafting an Art Work, not Coding, remember.",
-                                  style: const TextStyle(
-                                    fontFamily: 'caveat',
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ),
-                              Center(
-                                child: Text(
-                                  "Weicheng & GPT3.5 - 2024",
                                   style: const TextStyle(
                                     fontFamily: 'caveat',
                                     fontWeight: FontWeight.w500,
