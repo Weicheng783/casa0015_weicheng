@@ -34,6 +34,7 @@ Learn Human Interface Guidelines (HIG-Apple): https://developer.apple.com/design
 - **Explore Nearby Memories:** Unlock and explore memories by walking near their geotagged locations.
 - **User Account Management:** Save exploration history and manage your account for a personalized experience.
 - **Photo Sharing:** Share and explore memories through photos linked to real-world locations.
+- **Gemini Insights:** Get weather specific guidance by asking real data on Gemini.
 
 ## Installation
 
@@ -91,9 +92,21 @@ dependencies:
   device_info_plus: ^9.1.1
   image: ^4.1.4
   exif: ^3.3.0
+  camera: ^0.10.5+9
+  image_gallery_saver: ^2.0.3
+  riverpod: ^2.5.0
+  fl_chart: ^0.66.2
   flutter:
     sdk: flutter
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
+  corbado_auth: ^2.0.4
+  flutter_hooks: ^0.20.5
+  flutter_riverpod: ^2.4.10
+  auth: ^8.2.0
+  passkeys: ^2.0.4
+  firebase_auth: ^4.17.4
 
 dev_dependencies:
   flutter_test:
