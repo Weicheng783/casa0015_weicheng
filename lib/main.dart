@@ -22,8 +22,8 @@ import 'navigation.dart';
 import 'login.dart'; // Import the login screen file
 
 // App version information
-String revision_ver = "4.1";
-String build_ver = "240306";
+String revision_ver = "4.2";
+String build_ver = "240311";
 
 // Main entry point of the application
 void main() {
