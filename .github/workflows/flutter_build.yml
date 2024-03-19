@@ -22,6 +22,17 @@ jobs:
           java-version: '11'
           distribution: microsoft
 
+      - name: Fill Google Map API key in AndroidManifest.xml
+        run: |
+          python extract_important_android.py
+        env:
+          Google_Map_Secret: ${{ secrets.Google_Map_Secret }}
+
+      - name: Fill Google Map API key in AppDelegate.swift
+        run: |
+          python extract_important_ios.py
+        env:
+          Google_Map_Secret: ${{ secrets.Google_Map_Secret }}
       #  Decode keystore File from repository secrets
       #  Keep the keystore file private; don’t check it into public source control!
       
