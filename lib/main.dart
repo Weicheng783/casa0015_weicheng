@@ -22,8 +22,8 @@ import 'navigation.dart';
 import 'login.dart'; // Import the login screen file
 
 // App version information
-String revision_ver = "4.2";
-String build_ver = "240311";
+String revision_ver = "4.3";
+String build_ver = "240319";
 
 // Main entry point of the application
 void main() {
@@ -99,7 +99,7 @@ class MyApp extends StatelessWidget {
           },
         ),
         debugShowCheckedModeBanner: false, // Disable debug banner
-        // You can also use a different color for dark mode if needed
+        // It can also use a different color for dark mode if needed
       );
     });
   }
@@ -361,21 +361,6 @@ class _MyHomePageState extends State<MyHomePage> {
                             ),
                           ),
                         ),
-                        // Text(
-                        //   '$_counter',
-                        //   style: Theme.of(context).textTheme.headlineMedium,
-                        // ),
-                        // FloatingActionButton(
-                        //   onPressed: () async {
-                        //     // Call the function when the FAB is tapped
-                        //     _loadLoggedInUsername();
-                        //     SharedPreferences prefs = await SharedPreferences.getInstance();
-                        //     String? storedValue = prefs.getString('username');
-                        //     print('Stored value: $storedValue');
-                        //     setState(() {});
-                        //   },
-                        //   child: Icon(Icons.refresh),
-                        // ),
                         SizedBox(
                           width: size.width * 0.95,
                           child: ClipRRect(
@@ -385,8 +370,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                 setState(() {
 
                                 });
-                                // Call setState(() {}); or perform any action when the container is tapped
-                                // UserDetailsPage().showDetails(context);
                               },
                               child: SizedBox(
                                 height: size.height,
@@ -512,7 +495,6 @@ class _MyHomePageState extends State<MyHomePage> {
                             ],
                           ),
                         ),
-
                       ],
                     )
                   ],
@@ -561,7 +543,6 @@ class EntryDetailsWidget extends StatelessWidget {
         Text('Time: ${entryMarker.time}'),
         Text('Date: ${entryMarker.date}'),
         Text('Content: ${entryMarker.content}'),
-        // Add more details as needed
       ],
     );
   }

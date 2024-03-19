@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'dart:io' show Platform;
 
 // This Class Serves as 'Sensors' Page
-// Edited by Weicheng Mar.6, 24.
+// Edited by Weicheng Mar.19, 24.
 class TemperatureTable extends StatefulWidget {
   const TemperatureTable({super.key});
 
@@ -105,14 +105,14 @@ class _TemperatureTableState extends State<TemperatureTable> {
   Future<void> submitAlert() async {
     final double inputValue = double.tryParse(inputController.text) ?? 0.0;
 
-    if (inputValue < 0 || inputValue > 95) {
+    if (inputValue < 1 || inputValue > 95) {
       // Show an error message if the entered value is not within the valid range.
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text('Error'),
-            content: Text('Please enter a value between 0 and 95.'),
+            content: Text('Please enter a value between 1 and 95.'),
             actions: [
               TextButton(
                 onPressed: () {
