@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:story.trail/submitTrail.dart';
@@ -22,8 +23,8 @@ import 'navigation.dart';
 import 'login.dart'; // Import the login screen file
 
 // App version information
-String revision_ver = "4.3";
-String build_ver = "240319";
+String revision_ver = "5.0";
+String build_ver = "240403";
 
 // Main entry point of the application
 void main() {
@@ -123,12 +124,52 @@ class MyHomePage extends StatefulWidget {
 
 // Variables to store logged-in username and fetch user preferences
 String loggedInUsername = '';
+bool dataSaver = false;
+bool friendMode = false;
 
 Future<void> getLoggedInUsername() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? username = prefs.getString('username');
   if (username != null) {
     loggedInUsername = username;
+  }
+}
+
+Future<void> getDataSaverMode() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? saverString = prefs.getString('datasaver');
+  if (saverString != null && saverString != "") {
+    dataSaver = true;
+  }else{
+    dataSaver = false;
+  }
+}
+
+Future<void> getFriendMode() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? saverString = prefs.getString('friendMode');
+  if (saverString != null && saverString != "") {
+    friendMode = true;
+  }else{
+    friendMode = false;
+  }
+}
+
+Future<void> setVariableModes(String variable, String setter) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.setString(variable, setter);
+  if(variable == "datasaver"){
+    if(setter != ""){
+      dataSaver = true;
+    }else{
+      dataSaver = false;
+    }
+  }else if(variable == "friendMode"){
+    if(setter != ""){
+      friendMode = true;
+    }else{
+      friendMode = false;
+    }
   }
 }
 
@@ -143,6 +184,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _loadLoggedInUsername();
+    getDataSaverMode();
+    getFriendMode();
     fetchPreferences();
   }
 
@@ -334,6 +377,65 @@ class _MyHomePageState extends State<MyHomePage> {
                             ),
                           ),
                         InternetStatusButton(),
+                        ElevatedButton(
+                          onLongPress: () {
+                            fetchPreferences();
+                            setState(() {
+                              // Toggle the state of the button
+                              dataSaver = !dataSaver;
+
+                              // Depending on the state, call the appropriate function
+                              if (dataSaver) {
+                                setVariableModes("datasaver", "On");
+                              } else {
+                                setVariableModes("datasaver", "");
+                              }
+                              getDataSaverMode();
+                            });
+                          },
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("To turn on/off data saver, long press it."),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(dataSaver ? Icons.data_saver_on_rounded : Icons.data_saver_off_rounded), // Change the icon based on the state
+                              SizedBox(width: 8),
+                              Text(dataSaver ? 'Data Saver On' : 'Data Saver Off'), // Change the text based on the state
+                            ],
+                          ),
+                        ),
+                        // The button for enabling friend mode
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children:[
+                              Icon(Icons.people_alt_rounded),
+                              SizedBox(height: 16.0, width: 15,),
+                              // Switch widget to toggle automatic calls
+                              Text("Allow Friend Mode"),
+                              SizedBox(width: 15,),
+                              Switch(
+                                value: friendMode,
+                                onChanged: (value) {
+                                  setState(() {
+                                    friendMode = value;
+                                    if (friendMode) {
+                                      // _findNearestUnexploredEntry();
+                                      setVariableModes("friendMode", "On");
+                                    }else{
+                                      setVariableModes("friendMode", "");
+                                    }
+                                  });
+                                  getFriendMode();
+                                },
+                              ),
+                            ]
+                        ),
                         if (loggedInUsername.isEmpty)
                           ElevatedButton(
                             onPressed: () {
@@ -362,19 +464,21 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ),
                         SizedBox(
-                          width: size.width * 0.95,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10.0),
-                            child: GestureDetector(
-                              onTap: () {
-                                setState(() {
+                          child: SizedBox(
+                            width: null,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10.0),
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
 
-                                });
-                              },
-                              child: SizedBox(
-                                height: size.height,
-                                width: size.width * 0.95,
-                                child: MapSample(),
+                                  });
+                                },
+                                child: SizedBox(
+                                  height: size.height,
+                                  width: size.width * 0.95,
+                                  child: MapSample(),
+                                ),
                               ),
                             ),
                           ),

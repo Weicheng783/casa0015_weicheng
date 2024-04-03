@@ -95,8 +95,10 @@ Set<TappedMarkerInfo> tappedMarkerInfos = Set();
 TextEditingController commentController = TextEditingController();
 late EntryMarker? nearestUnexploredEntry;
 bool showButtonNow = false;
+bool vibrationOn = true;
 double nowDistance = 999.99;
 double mapZoomLevel = 15;
+String friendsUserNameList = '';
 
 // The main map markers logic
 class MapSampleState extends State<MapSample> {
@@ -113,6 +115,7 @@ class MapSampleState extends State<MapSample> {
     super.initState();
     _initMap();
     _fetchLoggedInUsername();
+    _fetchFriendsUsername();
     _checkNearbyMarkers();
     _findNearestUnexploredEntry();
   }
@@ -229,7 +232,9 @@ class MapSampleState extends State<MapSample> {
           if (distance <= 50 && distance != 0.00) {
             if (showButtonNow) {
               // Trigger vibration
-              Vibration.vibrate(duration: 500);
+              if(vibrationOn){
+                Vibration.vibrate(duration: 500);
+              }
 
               // Trigger sound
               // AudioPlayer audioPlayer = AudioPlayer();
@@ -240,20 +245,25 @@ class MapSampleState extends State<MapSample> {
                   isNearby = true;
                 });
               }catch(e){
-                isNearby = true;
+                isNearby = false;
+                showButtonNow = false;
               }
             }else{
               try {
                 setState(() {
                   isNearby = false;
+                  showButtonNow = false;
                 });
               }catch(e){
                 isNearby = false;
+                showButtonNow = false;
               }
             }
             return;
           }else{
-            showButtonNow = false;
+            setState(() {
+              showButtonNow = false;
+            });
           }
         }
 
@@ -283,6 +293,38 @@ class MapSampleState extends State<MapSample> {
     return degree * pi / 180;
   }
 
+  List<String> parseFriendNames() {
+    // Split the input string by commas
+    List<String> names = ("$loggedInUsername,$friendsUserNameList").split(',');
+
+    // Trim each name to remove leading and trailing spaces
+    for (int i = 0; i < names.length; i++) {
+      names[i] = names[i].trim();
+    }
+
+    return names;
+  }
+
+  Future<void> getVibrationMode() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? tempString = prefs.getString('vibration');
+    if (tempString != null && tempString != "") {
+      vibrationOn = true;
+    }else{
+      vibrationOn = false;
+    }
+  }
+
+  Future<void> getAutoFinderMode() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? tempString = prefs.getString('autoFinder');
+    if (tempString != null && tempString != "") {
+      autoFindNearestEnabled = true;
+    }else{
+      autoFindNearestEnabled = false;
+    }
+  }
+
   // Logged-in user names fetching
   Future<void> _fetchLoggedInUsername() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -293,9 +335,21 @@ class MapSampleState extends State<MapSample> {
     });
   }
 
+  // Friends user names fetching
+  Future<void> _fetchFriendsUsername() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? usernames = prefs.getString('friendsList');
+
+    setState(() {
+      friendsUserNameList = usernames ?? '';
+    });
+  }
+
   void _initMap() async {
     try {
       locationPermissionGranted = await LocationService.requestLocationPermission();
+      getVibrationMode();
+      getAutoFinderMode();
 
       if (locationPermissionGranted) {
         await _updateLocation();
@@ -364,7 +418,7 @@ class MapSampleState extends State<MapSample> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            if (!locationPermissionGranted || currentLocation == null)
+            if (!locationPermissionGranted)
               Column(
                 children: [
                   // Large centered icon and explanatory text
@@ -426,6 +480,7 @@ class MapSampleState extends State<MapSample> {
                       updateMapCamera(); // Center the map initially
                       getLoggedInUsername();
                       _fetchLoggedInUsername();
+                      _fetchFriendsUsername();
                       _checkNearbyMarkers();
                       _findNearestUnexploredEntry(); // Move it here
                     },
@@ -548,10 +603,12 @@ class MapSampleState extends State<MapSample> {
 
               // The following shows the details in the card, below the map
               NavigationHelper.buildEntryDetailsCard(tappedMarkerIds, entryMarkers),
-              if (showButtonNow && username!='' && nowDistance <= 50.0 && nowDistance != 0.0)
+              if (showButtonNow && username!='' && nowDistance <= 50.0 && nowDistance != 0.0 && isNearby)
                 ElevatedButton(
                   onPressed: () async {
-                    showButtonNow = false;
+                    setState(() {
+                      showButtonNow = false;
+                    });
                     // Generate a random comment including current time, date, and a surprising string
                     String randomString = _generateRandomString();
                     String currentTime = _getCurrentTime();
@@ -559,20 +616,44 @@ class MapSampleState extends State<MapSample> {
                     String randomComment = 'Time: $currentTime\nDate: $currentDate\nSurprising String: $randomString';
 
                     // Perform the HTTPS POST request
+                    var response;
                     try {
-                      // Fetch user_id from the user.php API response
-
-                      // Replace 'your_server_url/addExplore.php' with the actual URL of your addExplore.php script
-                      final response = await http.post(
-                        Uri.parse('https://weicheng.app/flutter/addExplore.php'),
-                        body: {
-                          'user_identifier': username,
-                          'entry_id': nearestUnexploredEntry!.entryId,
-                          'time': _getCurrentTime(),
-                          'date': _getCurrentDate(),
-                          'comment': randomComment,
-                        },
-                      );
+                      if(friendMode){
+                        var friendNames = parseFriendNames();
+                        for(int i=0; i<friendNames.length; i++){
+                          // Send the exploration for every friend engaged
+                          // if(friendNames[i] != ""){
+                            response = await http.post(
+                              Uri.parse('https://weicheng.app/flutter/addExplore.php'),
+                              body: {
+                                'user_identifier': friendNames[i],
+                                'entry_id': nearestUnexploredEntry!.entryId,
+                                'time': _getCurrentTime(),
+                                'date': _getCurrentDate(),
+                                'comment': randomComment + "\n This exploration was registered by ${friendNames[0]}, together with friends ${friendsUserNameList}, enjoy your day!",
+                              },
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Explore data posted: ${response.body}'),
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+                          }
+                        // }
+                      }else{
+                        // Fetch user_id from the user.php API response
+                        response = await http.post(
+                          Uri.parse('https://weicheng.app/flutter/addExplore.php'),
+                          body: {
+                            'user_identifier': username,
+                            'entry_id': nearestUnexploredEntry!.entryId,
+                            'time': _getCurrentTime(),
+                            'date': _getCurrentDate(),
+                            'comment': randomComment,
+                          },
+                        );
+                      }
 
                       if (response.statusCode == 200) {
                         Vibration.vibrate(duration: 5000);
@@ -627,12 +708,39 @@ class MapSampleState extends State<MapSample> {
                         autoFindNearestEnabled = value;
                         if (autoFindNearestEnabled) {
                           _findNearestUnexploredEntry();
+                          setVariableModes("autoFinder", "On");
+                        }else{
+                          setVariableModes("autoFinder", "");
                         }
                       });
+                      getAutoFinderMode();
                     },
                   ),
                 ]
               ),
+
+            Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children:[
+                  SizedBox(height: 16.0),
+                  // Switch widget to toggle automatic calls
+                  Text("Vibration Haptics"),
+                  Switch(
+                    value: vibrationOn,
+                    onChanged: (value) {
+                      setState(() {
+                        vibrationOn = value;
+                        if(vibrationOn){
+                          setVariableModes("vibration", "On");
+                        }else{
+                          setVariableModes("vibration", "");
+                        }
+                      });
+                      getVibrationMode();
+                    },
+                  ),
+                ]
+            ),
 
           ],
         ),
@@ -813,10 +921,10 @@ String _getCurrentDate() {
 
 // Check if the user has explored or owned the entry
 bool hasExploredOrOwnedEntry(List<Map<String, dynamic>> userHistory, String entryId) {
-  print('User History: $userHistory');
+  // print('User History: $userHistory');
 
   return userHistory.any((entry) {
-    print('Entry: $entry');
+    // print('Entry: $entry');
 
     if (entry['entry_id'] == entryId) {
       return true;
@@ -884,12 +992,12 @@ class EntryDetailsWidget extends StatelessWidget {
             } else {
               final List<Map<String, dynamic>> userHistory = snapshot.data ?? [];
               userHistoryPub = userHistory;
-              print("ALl data:$userHistory");
+              // print("ALl data:$userHistory");
 
               // Check if the user has explored or owned the marker position using userHistory
               hasSeen = hasExploredOrOwnedEntry(userHistory, entryMarker.entryId);
 
-              print("hasSeen: $hasSeen");
+              // print("hasSeen: $hasSeen");
 
               // Conditionally display additional information based on user's history
               if (hasSeen) {

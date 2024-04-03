@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:story.trail/main.dart';
 import 'package:story.trail/photoUploader.dart';
 import 'dart:io' show File, Platform;
 
@@ -237,7 +239,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                   ),
                 ],
               ),
-              if (displayedEntries.isNotEmpty)
+              if (loggedInUsername != "" && displayedEntries.isNotEmpty)
                 Container(
                   height: 300, // Set the height as needed
                   child: GoogleMap(
@@ -246,12 +248,17 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                       // Assuming setMapTheme and moveCameraToCurrentPoint methods are correctly implemented
                       // Set map theme based on brightness
                       setMapTheme(controller, currentBrightness == Brightness.dark);
+                      updateDisplayedEntries();
                       moveCameraToCurrentPoint();
                     },
                     initialCameraPosition: CameraPosition(
-                      target: LatLng(0.0, 0.0),
+                      target: LatLng(double.parse(displayedEntries[0].lat), double.parse(displayedEntries[0].long)),
                       zoom: 15,
                     ),
+                    myLocationEnabled: true,
+                    tiltGesturesEnabled: true,
+                    zoomGesturesEnabled: true,
+                    scrollGesturesEnabled: true,
                     markers: createMarkers(),
                   ),
                 )
@@ -261,7 +268,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                   child: Text("No entries to display."),
                 ),
               SizedBox(height: 20),
-              if (displayedEntries.isNotEmpty)
+              if (loggedInUsername != "" && displayedEntries.isNotEmpty)
                 SizedBox(
                   height: 1000, // Set the height as needed
                   child: PageView.builder(
@@ -276,79 +283,81 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                     itemBuilder: (context, index) {
                       if (index < 0 || index >= displayedEntries.length) {
                         // Handle index out of bounds error, return an empty widget or null
-                        print("index index index:" + index.toString());
+                        // print("index index index:" + index.toString());
                         return Container(); // Return an empty container for now
                       } else {
-                        return Card(
-                          // Your card widget displaying all information for one entry
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Memory #${index + 1}",
-                                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                                ),
-                                Divider(),
-                                if (showCreatedEntries)
+                        try{
+                          return Card(
+                            // Your card widget displaying all information for one entry
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Memory #${index + 1}",
+                                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                                  ),
+                                  Divider(),
+                                  if (showCreatedEntries)
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text("Date Created: ${entriesCreated[index].date}"),
+                                        Text("Time Created: ${entriesCreated[index].time}"),
+                                      ],
+                                    ),
+
+                                  if (!showCreatedEntries)
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text("Date Explored: ${entriesExplored[index].date}"),
+                                        Text("Time Explored: ${entriesExplored[index].time}"),
+                                      ],
+                                    ),
+                                  Text("Latitude: ${displayedEntries[index].lat}"),
+                                  Text("Longitude: ${displayedEntries[index].long}"),
+                                  Text("Content: ${displayedEntries[index].content}"),
+                                  Text("Comment: ${displayedEntries[index].comment}"),
+                                  Text("Author Username: ${displayedEntries[index].authorUsername}"),
+                                  Text("Author User ID: ${displayedEntries[index].authorUserId}"),
+
+                                  // Display photos
+                                  SizedBox(
+                                    height: MediaQuery.of(context).size.height * 0.65,
+                                    width: MediaQuery.of(context).size.height * 0.6,
+                                    child: Container(
+                                      // color: , // Set your desired background color here
+                                      child: GetPhoto(entryId: int.parse(displayedEntries[index].entryId)),
+                                    ),
+                                  ),
+
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
-                                      Text("Date Created: ${entriesCreated[index].date}"),
-                                      Text("Time Created: ${entriesCreated[index].time}"),
+                                      if (!isUploading)
+                                        PhotoUploadPage(entryId: int.parse(displayedEntries[index].entryId)),
+                                      if (isUploading)
+                                        Column(
+                                          children: [
+                                            CircularProgressIndicator(),
+                                            SizedBox(height: 10),
+                                            Text("Please wait..."),
+                                          ],
+                                        ),
                                     ],
                                   ),
+                                  // Expanded(
+                                  //   child: GetPhoto(entryId: int.parse(displayedEntries[index].entryId)),
+                                  // ),
 
-                                if (!showCreatedEntries)
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text("Date Explored: ${entriesExplored[index].date}"),
-                                      Text("Time Explored: ${entriesExplored[index].time}"),
-                                    ],
-                                  ),
-                                Text("Latitude: ${displayedEntries[index].lat}"),
-                                Text("Longitude: ${displayedEntries[index].long}"),
-                                Text("Content: ${displayedEntries[index].content}"),
-                                Text("Comment: ${displayedEntries[index].comment}"),
-                                Text("Author Username: ${displayedEntries[index].authorUsername}"),
-                                Text("Author User ID: ${displayedEntries[index].authorUserId}"),
-
-                                // Display photos
-                                SizedBox(
-                                  height: MediaQuery.of(context).size.height * 0.5,
-                                  width: MediaQuery.of(context).size.height * 0.6,
-                                  child: Container(
-                                    // color: , // Set your desired background color here
-                                    child: GetPhoto(entryId: int.parse(displayedEntries[index].entryId)),
-                                  ),
-                                ),
-
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    if (!isUploading)
-                                      PhotoUploadPage(entryId: int.parse(displayedEntries[index].entryId)),
-                                    if (isUploading)
-                                      Column(
-                                        children: [
-                                          CircularProgressIndicator(),
-                                          SizedBox(height: 10),
-                                          Text("Please wait..."),
-                                        ],
-                                      ),
-                                  ],
-                                ),
-                                // Expanded(
-                                //   child: GetPhoto(entryId: int.parse(displayedEntries[index].entryId)),
-                                // ),
-
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                        );
+                          );
+                        }catch(e){}
                       }
                     },
                   ),
@@ -376,6 +385,8 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         ),
       );
     }
+
+    moveCameraToCurrentPoint();
 
     return markers;
   }

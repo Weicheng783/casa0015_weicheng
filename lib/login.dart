@@ -27,6 +27,8 @@ Future<void> fetchPreferences() async {
 final TextEditingController usernameController = TextEditingController();
 final TextEditingController passwordController = TextEditingController();
 
+final TextEditingController friendsController = TextEditingController();
+
 // Login Screen
 class LoginScreen extends StatelessWidget {
   final FocusNode usernameFocus = FocusNode();
@@ -146,17 +148,21 @@ class LoginScreen extends StatelessWidget {
           passwordController.clear();
         }
       } else {
-        print('Error: ${response.statusCode}');
+        // print('Error: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error: $e');
+      // print('Error: $e');
     }
   }
 
   void saveUsername(String username) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('username', username);
-    print("username"+username);
+  }
+
+  void saveFriendsList(String string) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('friendsList', string);
   }
 
   void _giveFocusToFields() {
@@ -369,6 +375,36 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ],
                   ),
+                if (username != null && username!.isNotEmpty && friendMode)
+                  if (Platform.isAndroid)
+                    TextFormField(
+                      controller: friendsController,
+                      focusNode: FocusNode(),
+                      textInputAction: TextInputAction.done,
+                      onChanged: (friends) {
+                        friendsController.text = friends;
+                        saveFriendsList(friends);
+                      },
+                      validator: (value) {
+                        return null;
+                      },
+                      decoration: InputDecoration(labelText: 'Friends List (separated by comma no space)'),
+                    ),
+                if (username != null && username!.isEmpty && friendMode)
+                  if (Platform.isIOS)
+                    TextFormField(
+                      focusNode: FocusNode(),
+                      textInputAction: TextInputAction.done,
+                      onChanged: (friends) {
+                        friendsController.text = friends;
+                        saveFriendsList(friends);
+                      },
+                      validator: (value) {
+                        return null;
+                      },
+                      decoration: InputDecoration(labelText: 'Friends List (separated by comma no space)'),
+                    ),
+                SizedBox(height: 10,),
                 if (username != null && username!.isNotEmpty)
                   ElevatedButton(
                     onPressed: () async {
