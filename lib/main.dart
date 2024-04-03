@@ -8,6 +8,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:story.trail/shortestJourney.dart';
 import 'package:story.trail/submitTrail.dart';
 import 'package:story.trail/temperature_table.dart';
 import 'package:story.trail/userDetails.dart';
@@ -23,7 +24,7 @@ import 'navigation.dart';
 import 'login.dart'; // Import the login screen file
 
 // App version information
-String revision_ver = "5.0";
+String revision_ver = "5.1";
 String build_ver = "240403";
 
 // Main entry point of the application
@@ -126,6 +127,12 @@ class MyHomePage extends StatefulWidget {
 String loggedInUsername = '';
 bool dataSaver = false;
 bool friendMode = false;
+bool londonTflHelper = false;
+
+String startLat = "";
+String startLong = "";
+String endLat = "";
+String endLong = "";
 
 Future<void> getLoggedInUsername() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -155,6 +162,16 @@ Future<void> getFriendMode() async {
   }
 }
 
+Future<void> getLondonTflMode() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? temp = prefs.getString('tflMode');
+  if (temp != null && temp != "") {
+    londonTflHelper = true;
+  }else{
+    londonTflHelper = false;
+  }
+}
+
 Future<void> setVariableModes(String variable, String setter) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.setString(variable, setter);
@@ -169,6 +186,12 @@ Future<void> setVariableModes(String variable, String setter) async {
       friendMode = true;
     }else{
       friendMode = false;
+    }
+  }else if(variable == "tflMode"){
+    if(setter != ""){
+      londonTflHelper = true;
+    }else{
+      londonTflHelper = false;
     }
   }
 }
@@ -186,6 +209,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _loadLoggedInUsername();
     getDataSaverMode();
     getFriendMode();
+    getLondonTflMode();
     fetchPreferences();
   }
 
@@ -483,6 +507,12 @@ class _MyHomePageState extends State<MyHomePage> {
                             ),
                           ),
                         ),
+
+                        if(londonTflHelper)
+                          ShortestJourneyWidget(startLat: startLat, endLat: endLat, startLong: startLong, endLong: endLong),
+
+                        if(londonTflHelper)
+                          SizedBox(height: 30,),
 
                         // Auxiliary information such as Author info, etc.
                         Center(

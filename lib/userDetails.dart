@@ -325,7 +325,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
 
                                   // Display photos
                                   SizedBox(
-                                    height: MediaQuery.of(context).size.height * 0.65,
+                                    height: MediaQuery.of(context).size.height * 0.60,
                                     width: MediaQuery.of(context).size.height * 0.6,
                                     child: Container(
                                       // color: , // Set your desired background color here

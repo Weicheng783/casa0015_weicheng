@@ -72,6 +72,12 @@
 @import restart_app;
 #endif
 
+#if __has_include(<sensors/FLTSensorsPlugin.h>)
+#import <sensors/FLTSensorsPlugin.h>
+#else
+@import sensors;
+#endif
+
 #if __has_include(<sensors_plus/FPPSensorsPlusPlugin.h>)
 #import <sensors_plus/FPPSensorsPlusPlugin.h>
 #else
@@ -116,6 +122,7 @@
   [LocationPlugin registerWithRegistrar:[registry registrarForPlugin:@"LocationPlugin"]];
   [PathProviderPlugin registerWithRegistrar:[registry registrarForPlugin:@"PathProviderPlugin"]];
   [RestartAppPlugin registerWithRegistrar:[registry registrarForPlugin:@"RestartAppPlugin"]];
+  [FLTSensorsPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTSensorsPlugin"]];
   [FPPSensorsPlusPlugin registerWithRegistrar:[registry registrarForPlugin:@"FPPSensorsPlusPlugin"]];
   [SharedPreferencesPlugin registerWithRegistrar:[registry registrarForPlugin:@"SharedPreferencesPlugin"]];
   [SqflitePlugin registerWithRegistrar:[registry registrarForPlugin:@"SqflitePlugin"]];

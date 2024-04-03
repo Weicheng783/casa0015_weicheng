@@ -10,8 +10,10 @@ import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:story.trail/login.dart';
+import 'package:story.trail/shortestJourney.dart';
 import 'package:vibration/vibration.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:shake_event/shake_event.dart';
 
 import 'main.dart';
 import 'mapHelper.dart';
@@ -101,7 +103,7 @@ double mapZoomLevel = 15;
 String friendsUserNameList = '';
 
 // The main map markers logic
-class MapSampleState extends State<MapSample> {
+class MapSampleState extends State<MapSample> with ShakeHandler {
   GoogleMapController? mapController;
   LocationData? currentLocation;
   bool locationPermissionGranted = false;
@@ -118,7 +120,25 @@ class MapSampleState extends State<MapSample> {
     _fetchFriendsUsername();
     _checkNearbyMarkers();
     _findNearestUnexploredEntry();
+    startListeningShake(30); //20 is the default threshold value for the shake event
   }
+
+  @override
+  void dispose() {
+    resetShakeListeners();
+    super.dispose();
+  }
+
+  @override
+  shakeEventListener() {
+    //DO ACTIONS HERE when shake detected
+    if (showButtonNow && username!='' && nowDistance <= 50.0 && nowDistance != 0.0 && isNearby){
+      _letusCongrats();
+    }
+    return super.shakeEventListener();
+  }
+
+  final GlobalKey _congratsButtonKey = GlobalKey();
 
   Future<void> _findNearestUnexploredEntry() async {
     // Get the user's location
@@ -151,6 +171,13 @@ class MapSampleState extends State<MapSample> {
       double zoomLevel = _calculateZoomLevel(nearestUnexploredEntry!.distanceToUser);
       print("zoomlevel: $zoomLevel");
       mapZoomLevel = zoomLevel;
+
+      setState(() {
+        startLat = currentLocation!.latitude.toString();
+        startLong = currentLocation!.longitude.toString();
+        endLat = nearestUnexploredEntry!.latitude;
+        endLong = nearestUnexploredEntry!.longitude;
+      });
 
       // Update the map camera to show both user and entry
       try {
@@ -215,6 +242,14 @@ class MapSampleState extends State<MapSample> {
     Timer.periodic(Duration(seconds: 10), (timer) async {
       if(!commentBoxShown){
         LocationData userLocation = await LocationService.getLocation();
+
+        setState(() {
+          startLat = currentLocation!.latitude.toString();
+          startLong = currentLocation!.longitude.toString();
+          endLat = nearestUnexploredEntry!.latitude;
+          endLong = nearestUnexploredEntry!.longitude;
+        });
+
         if (autoFindNearestEnabled) {
           _findNearestUnexploredEntry();
         }
@@ -350,6 +385,7 @@ class MapSampleState extends State<MapSample> {
       locationPermissionGranted = await LocationService.requestLocationPermission();
       getVibrationMode();
       getAutoFinderMode();
+      getLondonTflMode();
 
       if (locationPermissionGranted) {
         await _updateLocation();
@@ -481,6 +517,7 @@ class MapSampleState extends State<MapSample> {
                       getLoggedInUsername();
                       _fetchLoggedInUsername();
                       _fetchFriendsUsername();
+                      getLondonTflMode();
                       _checkNearbyMarkers();
                       _findNearestUnexploredEntry(); // Move it here
                     },
@@ -605,119 +642,37 @@ class MapSampleState extends State<MapSample> {
               NavigationHelper.buildEntryDetailsCard(tappedMarkerIds, entryMarkers),
               if (showButtonNow && username!='' && nowDistance <= 50.0 && nowDistance != 0.0 && isNearby)
                 ElevatedButton(
+                  key: _congratsButtonKey,
                   onPressed: () async {
-                    setState(() {
-                      showButtonNow = false;
-                    });
-                    // Generate a random comment including current time, date, and a surprising string
-                    String randomString = _generateRandomString();
-                    String currentTime = _getCurrentTime();
-                    String currentDate = _getCurrentDate();
-                    String randomComment = 'Time: $currentTime\nDate: $currentDate\nSurprising String: $randomString';
-
-                    // Perform the HTTPS POST request
-                    var response;
-                    try {
-                      if(friendMode){
-                        var friendNames = parseFriendNames();
-                        for(int i=0; i<friendNames.length; i++){
-                          // Send the exploration for every friend engaged
-                          // if(friendNames[i] != ""){
-                            response = await http.post(
-                              Uri.parse('https://weicheng.app/flutter/addExplore.php'),
-                              body: {
-                                'user_identifier': friendNames[i],
-                                'entry_id': nearestUnexploredEntry!.entryId,
-                                'time': _getCurrentTime(),
-                                'date': _getCurrentDate(),
-                                'comment': randomComment + "\n This exploration was registered by ${friendNames[0]}, together with friends ${friendsUserNameList}, enjoy your day!",
-                              },
-                            );
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Explore data posted: ${response.body}'),
-                                duration: Duration(seconds: 3),
-                              ),
-                            );
-                          }
-                        // }
-                      }else{
-                        // Fetch user_id from the user.php API response
-                        response = await http.post(
-                          Uri.parse('https://weicheng.app/flutter/addExplore.php'),
-                          body: {
-                            'user_identifier': username,
-                            'entry_id': nearestUnexploredEntry!.entryId,
-                            'time': _getCurrentTime(),
-                            'date': _getCurrentDate(),
-                            'comment': randomComment,
-                          },
-                        );
-                      }
-
-                      if (response.statusCode == 200) {
-                        Vibration.vibrate(duration: 5000);
-                        print('Explore data posted successfully');
-                        // Display the user response in the app
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Explore data posted successfully: ${response.body}'),
-                            duration: Duration(seconds: 3),
-                          ),
-                        );
-                      } else {
-                        print('Failed to post explore data: ${response.statusCode}');
-                        // Display the error response in the app
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Failed to post explore data: ${response.body}'),
-                            duration: Duration(seconds: 3),
-                          ),
-                        );
-                      }
-                    } catch (e) {
-                      Vibration.vibrate(duration: 500);
-                      print('Error posting explore data: $e');
-                      // Display the error message in the app
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Error posting explore data: $e'),
-                          duration: Duration(seconds: 3),
-                        ),
-                      );
-                    }
-
-                    // Refresh the page to refetch all data
-                    _fetchEntries();
-                    _findNearestUnexploredEntry();
+                    _letusCongrats();
                   },
                   child: Text('Register & Congratulations!'),
                 ),
 
-              // The button for auto find mode
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children:[
-                  SizedBox(height: 16.0),
-                  // Switch widget to toggle automatic calls
-                  Text("Auto Find Nearest Entry & Follow Mode"),
-                  Switch(
-                    value: autoFindNearestEnabled,
-                    onChanged: (value) {
-                      setState(() {
-                        autoFindNearestEnabled = value;
-                        if (autoFindNearestEnabled) {
-                          _findNearestUnexploredEntry();
-                          setVariableModes("autoFinder", "On");
-                        }else{
-                          setVariableModes("autoFinder", "");
-                        }
-                      });
-                      getAutoFinderMode();
-                    },
-                  ),
-                ]
-              ),
+            // The button for auto find mode
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children:[
+                SizedBox(height: 16.0),
+                // Switch widget to toggle automatic calls
+                Text("Auto Find Nearest Entry & Follow Mode"),
+                Switch(
+                  value: autoFindNearestEnabled,
+                  onChanged: (value) {
+                    setState(() {
+                      autoFindNearestEnabled = value;
+                      if (autoFindNearestEnabled) {
+                        _findNearestUnexploredEntry();
+                        setVariableModes("autoFinder", "On");
+                      }else{
+                        setVariableModes("autoFinder", "");
+                      }
+                    });
+                    getAutoFinderMode();
+                  },
+                ),
+              ]
+            ),
 
             Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -742,10 +697,121 @@ class MapSampleState extends State<MapSample> {
                 ]
             ),
 
+            Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children:[
+                  SizedBox(height: 16.0),
+                  // Switch widget to toggle automatic calls
+                  Text("Londoner Tfl Assistant Api"),
+                  Switch(
+                    value: londonTflHelper,
+                    onChanged: (value) {
+                      setState(() {
+                        londonTflHelper = value;
+                        if (londonTflHelper) {
+                          // _findNearestUnexploredEntry();
+                          setVariableModes("tflMode", "On");
+                        }else{
+                          setVariableModes("tflMode", "");
+                        }
+                      });
+                      getLondonTflMode();
+                    },
+                  ),
+                ]
+            ),
+
           ],
         ),
       ),
     );
+  }
+
+  _letusCongrats() async {
+    setState(() {
+      showButtonNow = false;
+    });
+    // Generate a random comment including current time, date, and a surprising string
+    String randomString = _generateRandomString();
+    String currentTime = _getCurrentTime();
+    String currentDate = _getCurrentDate();
+    String randomComment = 'Time: $currentTime\nDate: $currentDate\nSurprising String: $randomString';
+
+    // Perform the HTTPS POST request
+    var response;
+    try {
+      if(friendMode){
+        var friendNames = parseFriendNames();
+        for(int i=0; i<friendNames.length; i++){
+          // Send the exploration for every friend engaged
+          // if(friendNames[i] != ""){
+          response = await http.post(
+            Uri.parse('https://weicheng.app/flutter/addExplore.php'),
+            body: {
+              'user_identifier': friendNames[i],
+              'entry_id': nearestUnexploredEntry!.entryId,
+              'time': _getCurrentTime(),
+              'date': _getCurrentDate(),
+              'comment': randomComment + "\n This exploration was registered by ${friendNames[0]}, together with friends ${friendsUserNameList}, enjoy your day!",
+            },
+          );
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Explore data posted: ${response.body}'),
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
+        // }
+      }else{
+        // Fetch user_id from the user.php API response
+        response = await http.post(
+          Uri.parse('https://weicheng.app/flutter/addExplore.php'),
+          body: {
+            'user_identifier': username,
+            'entry_id': nearestUnexploredEntry!.entryId,
+            'time': _getCurrentTime(),
+            'date': _getCurrentDate(),
+            'comment': randomComment,
+          },
+        );
+      }
+
+      if (response.statusCode == 200) {
+        Vibration.vibrate(duration: 5000);
+        print('Explore data posted successfully');
+        // Display the user response in the app
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Explore data posted successfully: ${response.body}'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      } else {
+        print('Failed to post explore data: ${response.statusCode}');
+        // Display the error response in the app
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to post explore data: ${response.body}'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      Vibration.vibrate(duration: 500);
+      print('Error posting explore data: $e');
+      // Display the error message in the app
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error posting explore data: $e'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+
+    // Refresh the page to refetch all data
+    _fetchEntries();
+    _findNearestUnexploredEntry();
   }
 
   Future<String?> _showCommentDialog(BuildContext context) async {
@@ -990,6 +1056,10 @@ class EntryDetailsWidget extends StatelessWidget {
             if (snapshot.hasError) {
               return Text("Error fetching user history: ${snapshot.error}");
             } else {
+              // Update for Tfl Londoner Assistant
+              endLong = entryMarker.longitude;
+              endLat = entryMarker.latitude;
+
               final List<Map<String, dynamic>> userHistory = snapshot.data ?? [];
               userHistoryPub = userHistory;
               // print("ALl data:$userHistory");
@@ -1021,7 +1091,7 @@ class EntryDetailsWidget extends StatelessWidget {
                   children: [
                     if(username=='')
                       Text("Login to register your footprints."),
-                    Text("You haven't explored this memory yet.\n Walk nearby (<=50m) and click here to unlock."),
+                    Text("You haven't explored this memory yet.\n Walk nearby (<=50m) and \n shake/click to unlock."),
                     // Text("Latitude: ${entryMarker.latitude}"),
                     // Text("Longitude: ${entryMarker.longitude}"),
                   ],
