@@ -27,7 +27,7 @@ import 'navigation.dart';
 import 'login.dart'; // Import the login screen file
 
 // App version information
-String revision_ver = "5.2";
+String revision_ver = "5.2.1";
 String build_ver = "240404";
 
 // Main entry point of the application
@@ -598,7 +598,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                   Text('Longitude: ${emergencyLong}'),
                                   Text('Content: ${emergencyTappedMarker['message']}'),
                                   Text('Message ID: ${emergencyTappedMarker['id']}'),
-                                  // ... (add more details as needed)
                                 ],
                               ),
                             ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io' show Platform;
 
+import 'package:story.trail/main.dart';
+
 class MessageSender extends StatefulWidget {
   @override
   _MessageSenderState createState() => _MessageSenderState();
@@ -21,7 +23,7 @@ class _MessageSenderState extends State<MessageSender> {
           'status': 'sent',
           'receiver': _usernameController.text,
           'message': _messageController.text,
-          'sender': 'ett',
+          'sender': loggedInUsername,
         },
       );
 

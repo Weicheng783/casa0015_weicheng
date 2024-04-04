@@ -145,8 +145,9 @@ class _ShortestJourneyWidgetState extends State<ShortestJourneyWidget> {
                           children: leg.instructions.map((instruction) => Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Instruction Summary: ${instruction.summary}'),
-                              Text('Instruction Detailed: ${instruction.detailed}'),
+                              Text('Instruction:\n ${instruction.summary}'),
+                              if(instruction.detailed != instruction.summary)
+                                Text('(${instruction.detailed})'),
                             ],
                           )).toList(),
                         ),
@@ -163,7 +164,6 @@ class _ShortestJourneyWidgetState extends State<ShortestJourneyWidget> {
     );
   }
 }
-
 
 class Journey {
   final String startDateTime;

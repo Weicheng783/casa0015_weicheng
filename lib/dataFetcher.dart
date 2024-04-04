@@ -287,7 +287,9 @@ class _DataFetcherState extends State<DataFetcher> {
                       messageInfo['sender'] != loggedInUsername) {
                     var tempVol = await VolumeController().getVolume();
                     _setVolumeValue = 0.7;
-                    VolumeController().setVolume(_setVolumeValue);
+                    if(emergencyId != ""){
+                      VolumeController().setVolume(_setVolumeValue);
+                    }
                     setState(() {});
                     await player.setVolume(1);
                     await player.play(UrlSource('https://weicheng.app/flutter/notification.wav'));
