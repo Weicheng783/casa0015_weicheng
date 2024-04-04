@@ -8,6 +8,7 @@ import 'dart:io' show Platform;
 
 import 'feedbackPage.dart';
 import 'main.dart';
+import 'messageSender.dart';
 
 String? username = '';
 String iosNameInput = '';
@@ -204,7 +205,7 @@ class LoginScreen extends StatelessWidget {
         ),
         backgroundColor: Platform.isIOS ? null : Theme.of(context).colorScheme.secondaryContainer,
       ),
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       // The following is the widget logic for: logged in, guest modes.
       body: SingleChildScrollView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -459,6 +460,8 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
 
+                if(username != "")
+                  MessageSender(),
               ],
             ),
           ),

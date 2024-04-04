@@ -15,8 +15,11 @@ import 'package:story.trail/userDetails.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'checkInternet.dart';
+import 'dataFetcher.dart';
+import 'emergencyButton.dart';
 import 'feedbackPage.dart';
 import 'getPhoto.dart';
+import 'handMovementTracker.dart';
 import 'mainHelpers.dart';
 import 'package:location/location.dart';
 import 'mapHelper.dart';
@@ -24,8 +27,8 @@ import 'navigation.dart';
 import 'login.dart'; // Import the login screen file
 
 // App version information
-String revision_ver = "5.1";
-String build_ver = "240403";
+String revision_ver = "5.2";
+String build_ver = "240404";
 
 // Main entry point of the application
 void main() {
@@ -128,17 +131,36 @@ String loggedInUsername = '';
 bool dataSaver = false;
 bool friendMode = false;
 bool londonTflHelper = false;
+bool showEasterEgg = false;
 
 String startLat = "";
 String startLong = "";
 String endLat = "";
 String endLong = "";
+String emergencyId = "";
+String emergencyLat = "";
+String emergencyLong = "";
+
+dynamic emergencyTappedMarker;
+
+List<Marker> emergencyPlaces = [];
+List<String> emergencyPeople = [];
 
 Future<void> getLoggedInUsername() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? username = prefs.getString('username');
   if (username != null) {
     loggedInUsername = username;
+  }
+}
+
+Future<void> getEmergencyId() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? temp = prefs.getString('emergencyId');
+  if (temp != null && temp != "") {
+    emergencyId = temp;
+  }else{
+    emergencyId = "";
   }
 }
 
@@ -172,6 +194,16 @@ Future<void> getLondonTflMode() async {
   }
 }
 
+Future<void> getEasterEggMode() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? temp = prefs.getString('showEasterEgg');
+  if (temp != null && temp != "") {
+    showEasterEgg = true;
+  }else{
+    showEasterEgg = false;
+  }
+}
+
 Future<void> setVariableModes(String variable, String setter) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.setString(variable, setter);
@@ -193,6 +225,18 @@ Future<void> setVariableModes(String variable, String setter) async {
     }else{
       londonTflHelper = false;
     }
+  }else if(variable == "showEasterEgg"){
+    if(setter != ""){
+      showEasterEgg = true;
+    }else{
+      showEasterEgg = false;
+    }
+  }else if(variable == "emergencyId"){
+    if(setter != ""){
+      emergencyId = variable;
+    }else{
+      emergencyId = "";
+    }
   }
 }
 
@@ -207,9 +251,11 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _loadLoggedInUsername();
+    getEmergencyId();
     getDataSaverMode();
     getFriendMode();
     getLondonTflMode();
+    getEasterEggMode();
     fetchPreferences();
   }
 
@@ -360,6 +406,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        DataFetcher(),
                         Text(
                           greeting,
                           style: const TextStyle(
@@ -378,6 +425,11 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         if (loggedInUsername.isNotEmpty)
                           ElevatedButton(
+                            style: Platform.isIOS? null : ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                Theme.of(context).colorScheme.primaryContainer,
+                              ),
+                            ),
                             onPressed: () {
                               loggedInUsername = '';
                               logoutUser();
@@ -401,38 +453,45 @@ class _MyHomePageState extends State<MyHomePage> {
                             ),
                           ),
                         InternetStatusButton(),
-                        ElevatedButton(
-                          onLongPress: () {
-                            fetchPreferences();
-                            setState(() {
-                              // Toggle the state of the button
-                              dataSaver = !dataSaver;
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                              onLongPress: () {
+                                fetchPreferences();
+                                setState(() {
+                                  // Toggle the state of the button
+                                  dataSaver = !dataSaver;
 
-                              // Depending on the state, call the appropriate function
-                              if (dataSaver) {
-                                setVariableModes("datasaver", "On");
-                              } else {
-                                setVariableModes("datasaver", "");
-                              }
-                              getDataSaverMode();
-                            });
-                          },
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text("To turn on/off data saver, long press it."),
-                                duration: Duration(seconds: 2),
+                                  // Depending on the state, call the appropriate function
+                                  if (dataSaver) {
+                                    setVariableModes("datasaver", "On");
+                                  } else {
+                                    setVariableModes("datasaver", "");
+                                  }
+                                  getDataSaverMode();
+                                });
+                              },
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("To turn on/off data saver, long press it."),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              },
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(dataSaver ? Icons.data_saver_on_rounded : Icons.data_saver_off_rounded), // Change the icon based on the state
+                                  SizedBox(width: 8),
+                                  Text(dataSaver ? 'Data Saver On' : 'Data Saver Off'), // Change the text based on the state
+                                ],
                               ),
-                            );
-                          },
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(dataSaver ? Icons.data_saver_on_rounded : Icons.data_saver_off_rounded), // Change the icon based on the state
-                              SizedBox(width: 8),
-                              Text(dataSaver ? 'Data Saver On' : 'Data Saver Off'), // Change the text based on the state
-                            ],
-                          ),
+                            ),
+                            SizedBox(width: 5,),
+                            EmergencyAlertButton(),
+                          ],
                         ),
                         // The button for enabling friend mode
                         Row(
@@ -462,6 +521,11 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         if (loggedInUsername.isEmpty)
                           ElevatedButton(
+                            style: Platform.isIOS? null : ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                Theme.of(context).colorScheme.primaryContainer,
+                              ),
+                            ),
                             onPressed: () {
                               fetchPreferences();
                               setState(() {});
@@ -508,6 +572,38 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ),
 
+                        if(emergencyPlaces.isNotEmpty)
+                          Card(
+                            elevation: 5.0,
+                            margin: EdgeInsets.all(16.0),
+                            child: Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Only display details for the first tapped marker
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.warning_amber_rounded, size: 50,),
+                                      SizedBox(width: 15,),
+                                      Icon(Icons.emergency_share, size: 50,),
+                                      SizedBox(width: 15,),
+                                      Icon(Icons.emergency, size: 50,),
+                                    ],
+                                  ),
+                                  Text('${emergencyTappedMarker['sender']} has initiated an Emergency Service, please check out if possible.'),
+                                  Text('At Time: ${emergencyTappedMarker['time']}'),
+                                  Text('Latitude: ${emergencyLat}'),
+                                  Text('Longitude: ${emergencyLong}'),
+                                  Text('Content: ${emergencyTappedMarker['message']}'),
+                                  Text('Message ID: ${emergencyTappedMarker['id']}'),
+                                  // ... (add more details as needed)
+                                ],
+                              ),
+                            ),
+                          ),
+
                         if(londonTflHelper)
                           ShortestJourneyWidget(startLat: startLat, endLat: endLat, startLong: startLong, endLong: endLong),
 
@@ -552,7 +648,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   ElevatedButton(
                                       onPressed: () {
                                         // Handle button press, e.g., open the GitHub project
-                                        launchUrl(Uri.parse('https://github.com/Weicheng783/casa0015_weicheng'));
+                                        launchUrl(Uri.parse('https://github.com/Weicheng783/casa0015_weicheng/releases'));
                                       },
                                       style: Platform.isIOS? null : ButtonStyle(
                                         backgroundColor: MaterialStateProperty.all<Color>(
@@ -625,6 +721,31 @@ class _MyHomePageState extends State<MyHomePage> {
                                   ),
                                 ),
                               ),
+                              SizedBox(height: 30),
+                              Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children:[
+                                    SizedBox(height: 16.0),
+                                    // Switch widget to toggle automatic calls
+                                    Text("Show Easter Egg "),
+                                    Switch(
+                                      value: showEasterEgg,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          showEasterEgg = value;
+                                          if(showEasterEgg){
+                                            setVariableModes("showEasterEgg", "On");
+                                          }else{
+                                            setVariableModes("showEasterEgg", "");
+                                          }
+                                        });
+                                        getEasterEggMode();
+                                      },
+                                    ),
+                                  ]
+                              ),
+                              if(showEasterEgg)
+                                HandMovementTrackerCard(),
                               SizedBox(height: 60),
                             ],
                           ),

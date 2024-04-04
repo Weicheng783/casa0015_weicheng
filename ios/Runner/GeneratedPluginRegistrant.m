@@ -96,6 +96,12 @@
 @import sqflite;
 #endif
 
+#if __has_include(<torch_controller/TorchControllerPlugin.h>)
+#import <torch_controller/TorchControllerPlugin.h>
+#else
+@import torch_controller;
+#endif
+
 #if __has_include(<url_launcher_ios/URLLauncherPlugin.h>)
 #import <url_launcher_ios/URLLauncherPlugin.h>
 #else
@@ -106,6 +112,12 @@
 #import <vibration/VibrationPlugin.h>
 #else
 @import vibration;
+#endif
+
+#if __has_include(<volume_controller/VolumeControllerPlugin.h>)
+#import <volume_controller/VolumeControllerPlugin.h>
+#else
+@import volume_controller;
 #endif
 
 @implementation GeneratedPluginRegistrant
@@ -126,8 +138,10 @@
   [FPPSensorsPlusPlugin registerWithRegistrar:[registry registrarForPlugin:@"FPPSensorsPlusPlugin"]];
   [SharedPreferencesPlugin registerWithRegistrar:[registry registrarForPlugin:@"SharedPreferencesPlugin"]];
   [SqflitePlugin registerWithRegistrar:[registry registrarForPlugin:@"SqflitePlugin"]];
+  [TorchControllerPlugin registerWithRegistrar:[registry registrarForPlugin:@"TorchControllerPlugin"]];
   [URLLauncherPlugin registerWithRegistrar:[registry registrarForPlugin:@"URLLauncherPlugin"]];
   [VibrationPlugin registerWithRegistrar:[registry registrarForPlugin:@"VibrationPlugin"]];
+  [VolumeControllerPlugin registerWithRegistrar:[registry registrarForPlugin:@"VolumeControllerPlugin"]];
 }
 
 @end

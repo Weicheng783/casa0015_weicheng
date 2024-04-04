@@ -243,12 +243,16 @@ class MapSampleState extends State<MapSample> with ShakeHandler {
       if(!commentBoxShown){
         LocationData userLocation = await LocationService.getLocation();
 
-        setState(() {
-          startLat = currentLocation!.latitude.toString();
-          startLong = currentLocation!.longitude.toString();
-          endLat = nearestUnexploredEntry!.latitude;
-          endLong = nearestUnexploredEntry!.longitude;
-        });
+        try{
+          setState(() {
+            startLat = currentLocation!.latitude.toString();
+            startLong = currentLocation!.longitude.toString();
+            try{
+              endLat = nearestUnexploredEntry!.latitude;
+              endLong = nearestUnexploredEntry!.longitude;
+            }catch(e){}
+          });
+        }catch(e){}
 
         if (autoFindNearestEnabled) {
           _findNearestUnexploredEntry();
@@ -518,6 +522,7 @@ class MapSampleState extends State<MapSample> with ShakeHandler {
                       _fetchLoggedInUsername();
                       _fetchFriendsUsername();
                       getLondonTflMode();
+                      getEmergencyId();
                       _checkNearbyMarkers();
                       _findNearestUnexploredEntry(); // Move it here
                     },
@@ -555,7 +560,7 @@ class MapSampleState extends State<MapSample> with ShakeHandler {
                           });
                         },
                       );
-                    })),
+                    }).followedBy(emergencyPlaces)),
                     onTap: (_) {
                       // Clear tapped markers when the map is tapped
                       setState(() {
@@ -674,6 +679,7 @@ class MapSampleState extends State<MapSample> with ShakeHandler {
               ]
             ),
 
+            // Vibration Haptics Toggle
             Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children:[
