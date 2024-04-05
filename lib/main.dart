@@ -27,8 +27,19 @@ import 'navigation.dart';
 import 'login.dart'; // Import the login screen file
 
 // App version information
-String revision_ver = "5.2.2";
+String revision_ver = "5.3";
 String build_ver = "240405";
+
+// App Device Locker (240405)
+// Implementation: https://stackoverflow.com/questions/61889443/flutter-app-ability-to-turn-off-the-screen
+const platform = MethodChannel('flutter.native/powerOff');
+Future<void> responseFromNativeCode() async {
+  try {
+    await platform.invokeMethod('powerOff');
+  } on PlatformException catch (e) {
+    print("Failed to Invoke: '${e.message}'.");
+  }
+}
 
 // Main entry point of the application
 void main() {
@@ -452,7 +463,28 @@ class _MyHomePageState extends State<MyHomePage> {
                               ],
                             ),
                           ),
-                        InternetStatusButton(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            InternetStatusButton(),
+                            if(Platform.isAndroid)
+                              ElevatedButton(
+                                style: Platform.isIOS? null : ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.all<Color>(
+                                    Theme.of(context).colorScheme.primaryContainer,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.lock_outline_rounded),
+                                  ]
+                                  ,),
+                                onPressed: responseFromNativeCode,
+                              ),
+                          ],
+                        ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -572,7 +604,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ),
 
-                        if(emergencyPlaces.isNotEmpty)
+                        if(emergencyPlaces.isNotEmpty && emergencyTappedMarker != null)
                           Card(
                             elevation: 5.0,
                             margin: EdgeInsets.all(16.0),

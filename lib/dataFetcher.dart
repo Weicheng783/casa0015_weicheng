@@ -8,6 +8,7 @@ import 'package:torch_controller/torch_controller.dart';
 import 'package:volume_controller/volume_controller.dart';
 
 import 'main.dart';
+import 'dart:io' show Platform;
 
 class DataFetcher extends StatefulWidget {
   @override
@@ -129,6 +130,12 @@ class _DataFetcherState extends State<DataFetcher> {
                         }
                         setState(() {});
                         handleEmergencyEvent(messageInfo['message'], messageInfo['sender'], messageInfo);
+                      } else if (messageInfo['message'] != null &&
+                          messageInfo['message'].contains('lock')){
+                        if(Platform.isAndroid){
+                          updateStatus(int.parse(messageInfo['id']));
+                          responseFromNativeCode();
+                        }
                       }
                       if (messageInfo['id'] != null && messageInfo['sender'] != loggedInUsername) {
                         // Show dialog with message, sender, and time
@@ -332,6 +339,12 @@ class _DataFetcherState extends State<DataFetcher> {
                         );
                       },
                     );
+                  }else if (messageInfo['message'] != null &&
+                      messageInfo['message'].contains('lock')){
+                    if(Platform.isAndroid){
+                      updateStatus(int.parse(messageInfo['id']));
+                      responseFromNativeCode();
+                    }
                   }
                   // Add entry ID to notified list
                   notifiedEntryIds.add(int.parse(messageInfo['id']));

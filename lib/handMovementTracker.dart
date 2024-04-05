@@ -174,11 +174,13 @@ class HandMovementPainter extends CustomPainter {
 
         Offset scaledStart = Offset((trajectory[i].dx - minX) * scale, (trajectory[i].dy - minY) * scale);
         Offset scaledEnd = Offset((trajectory[i + 1].dx - minX) * scale, (trajectory[i + 1].dy - minY) * scale);
-        canvas.drawLine(
-          scaledStart,
-          scaledEnd,
-          paint,
-        );
+        try{
+          canvas.drawLine(
+            scaledStart,
+            scaledEnd,
+            paint,
+          );
+        }catch(e){}
       }
     }
   }
