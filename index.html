@@ -142,6 +142,41 @@
     </ul>
 </section>
 
+<section id="slideshow">
+    <img src="showcase/1.JPG" alt="Image 1">
+    <img src="showcase/2.JPG" alt="Image 1">
+    <img src="showcase/3.JPG" alt="Image 1">
+    <!-- Add more images as needed -->
+</section>
+
+<script>
+    // Function to create slideshow
+    const createSlideshow = () => {
+        const slideshow = document.getElementById('slideshow');
+        const images = slideshow.querySelectorAll('img');
+
+        // Hide all images except the first one
+        images.forEach((image, index) => {
+            if (index !== 0) {
+                image.style.display = 'none';
+            }
+        });
+
+        // Start slideshow
+        let currentSlide = 0;
+        const slideInterval = setInterval(nextSlide, 5000);
+
+        function nextSlide() {
+            images[currentSlide].style.display = 'none';
+            currentSlide = (currentSlide + 1) % images.length;
+            images[currentSlide].style.display = 'block';
+        }
+    };
+
+    // Call function to create slideshow when DOM is ready
+    document.addEventListener('DOMContentLoaded', createSlideshow);
+</script>
+
 <section>
     <h2>UI Design</h2>
     <p>The Story Trail app follows a visually appealing design language:</p>
