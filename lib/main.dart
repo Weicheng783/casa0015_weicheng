@@ -27,8 +27,8 @@ import 'navigation.dart';
 import 'login.dart'; // Import the login screen file
 
 // App version information
-String revision_ver = "5.2.1";
-String build_ver = "240404";
+String revision_ver = "5.2.2";
+String build_ver = "240405";
 
 // Main entry point of the application
 void main() {
@@ -592,7 +592,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       Icon(Icons.emergency, size: 50,),
                                     ],
                                   ),
-                                  Text('${emergencyTappedMarker['sender']} has initiated an Emergency Service, please check out if possible.'),
+                                  Text('${(emergencyTappedMarker['sender'] != "" && emergencyTappedMarker['sender'] != null)  ? emergencyTappedMarker['sender'] : ""} has initiated an Emergency Service, please check out if possible.'),
                                   Text('At Time: ${emergencyTappedMarker['time']}'),
                                   Text('Latitude: ${emergencyLat}'),
                                   Text('Longitude: ${emergencyLong}'),
