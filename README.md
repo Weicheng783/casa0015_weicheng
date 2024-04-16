@@ -56,7 +56,7 @@ This project is licensed under the [MIT License](LICENSE.md).
 
 ## Presentation Video
 
-[//]: # (Watch our presentation video to see Story Trail in action! [Presentation Video](link/to/video))
+# (Watch our presentation video to see Story Trail in action! [Story Trail Video](https://weicheng.app/casa_video.mp4))
 
 ## Contact Details
 
