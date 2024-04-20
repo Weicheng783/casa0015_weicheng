@@ -6,13 +6,17 @@ Welcome to Story Trail, an innovative cross-platform mobile app that allows user
 
 ![Story Trail Showcase](assets/ad1.jpg)
 
+## Website (Project Micro-site)
+Please check out our dedicated website: https://weicheng783.github.io/casa0015_weicheng/
+
 ## About
 
 Story Trail gives users the ability to share their memories and photos by geotagging them based on real locations. Other users can explore these memories by walking nearby, unlocking a unique and immersive experience. The app includes features such as user account management for saving exploration history, photo sharing based on real locations, and the ability to explore memories shared by others.
 
 - **Author:** Weicheng
-- **Collaboration:** Weicheng collaborated with ChatGPT and the GPT-3.5 model to create this unique experience.
+- **Collaboration:** Weicheng collaborated with the GPT-3.5 model to create this unique experience.
 - **Technology Stack:** Written entirely in Dart and developed using Flutter.
+- **Gemini Insights:** Get point of advice from LLM side of opinion (Gemini Pro).
 
 ## UI Design
 
@@ -50,6 +54,9 @@ To install and run the Story Trail app, follow these steps:
 
 Make sure you have Flutter and Dart installed on your machine. For more information, visit [Flutter](https://flutter.dev/docs/get-started/install).
 
+## Back-end Files Folder
+You can find all back-end files in the folder web/.
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE.md).
@@ -83,7 +90,7 @@ dependencies:
   connectivity_plus: ^5.0.2
   shared_preferences: ^2.2.2
   vibration: ^1.8.4
-  audioplayers: ^5.2.1
+  audioplayers: ^6.0.0
   image_picker: ^1.0.7
   restart_app: ^1.2.1
   photo_view: ^0.14.0
@@ -94,19 +101,19 @@ dependencies:
   exif: ^3.3.0
   camera: ^0.10.5+9
   image_gallery_saver: ^2.0.3
-  riverpod: ^2.5.0
   fl_chart: ^0.66.2
   flutter:
     sdk: flutter
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  corbado_auth: ^2.0.4
   flutter_hooks: ^0.20.5
   flutter_riverpod: ^2.4.10
-  auth: ^8.2.0
-  passkeys: ^2.0.4
-  firebase_auth: ^4.17.4
+  cached_network_image: ^3.3.1
+  path_provider: ^2.1.2
+  shake_event: ^0.0.9
+  torch_controller: ^2.0.1
+  volume_controller: ^2.0.7
 
 dev_dependencies:
   flutter_test:
