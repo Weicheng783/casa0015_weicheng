@@ -27,7 +27,7 @@ import 'navigation.dart';
 import 'login.dart'; // Import the login screen file
 
 // App version information
-String revision_ver = "5.3.3";
+String revision_ver = "5.4";
 String build_ver = "240422";
 
 // App Device Locker (240405)
