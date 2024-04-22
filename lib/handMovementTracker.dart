@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:sensors_plus/sensors_plus.dart';
 
+// Flutter Card element for our easter egg
 class HandMovementTrackerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -17,11 +18,15 @@ class HandMovementTrackerCard extends StatelessWidget {
   }
 }
 
+// This is one of the easter egg, it utilises the device's gyroscope to
+// produce a colorful trajectories.
 class HandMovementTracker extends StatefulWidget {
   @override
   _HandMovementTrackerState createState() => _HandMovementTrackerState();
 }
 
+// We define the variables here, our hand movement tracker will be
+// stopped at 10s to be precise.
 class _HandMovementTrackerState extends State<HandMovementTracker> {
   List<Offset> _trajectory = [];
   StreamSubscription<GyroscopeEvent>? _gyroscopeSubscription;
@@ -52,6 +57,7 @@ class _HandMovementTrackerState extends State<HandMovementTracker> {
       }
     });
 
+    // Subscription of messages to the accelerometers
     _accelerometerSubscription = accelerometerEvents.listen((AccelerometerEvent event) {
       double movementSpeed = sqrt(event.x * event.x + event.y * event.y + event.z * event.z);
 
@@ -151,6 +157,7 @@ class HandMovementPainter extends CustomPainter {
 
   HandMovementPainter(this.trajectory);
 
+  // Paint our colorful trajectories, this is the main logic.
   @override
   void paint(Canvas canvas, Size size) {
     if (trajectory.isNotEmpty) {

@@ -4,6 +4,8 @@ import 'dart:io' show Platform;
 
 import 'package:story.trail/main.dart';
 
+// This is the message sender in Friends mode
+// Added March 2024, to actively post messages to the specified user.
 class MessageSender extends StatefulWidget {
   @override
   _MessageSenderState createState() => _MessageSenderState();

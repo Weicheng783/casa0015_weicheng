@@ -10,6 +10,8 @@ import 'package:volume_controller/volume_controller.dart';
 import 'main.dart';
 import 'dart:io' show Platform;
 
+// This is the data fetcher for all variables which need to contain
+// and restore or initialise its data.
 class DataFetcher extends StatefulWidget {
   @override
   _DataFetcherState createState() => _DataFetcherState();
@@ -85,6 +87,7 @@ class _DataFetcherState extends State<DataFetcher> {
     });
   }
 
+  // Periodically fetch private messages per 6 seconds.
   Future<void> fetchEntriesPeriodically() async {
     Timer.periodic(Duration(seconds: intervalSeconds), (timer) async {
       if (friendMode) {

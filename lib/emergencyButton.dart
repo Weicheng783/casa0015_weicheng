@@ -5,6 +5,7 @@ import 'dart:io' show Platform;
 
 import 'package:story.trail/main.dart';
 
+// This is the Emergency Alert Button Implementation
 class EmergencyAlertButton extends StatefulWidget {
   @override
   _EmergencyAlertButtonState createState() => _EmergencyAlertButtonState();
@@ -97,7 +98,6 @@ class _EmergencyAlertButtonState extends State<EmergencyAlertButton> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
@@ -127,18 +127,4 @@ class _EmergencyAlertButtonState extends State<EmergencyAlertButton> {
       ),
     );
   }
-
 }
-
-// void main() {
-//   runApp(MaterialApp(
-//     home: Scaffold(
-//       appBar: AppBar(
-//         title: Text('Emergency Alert Button'),
-//       ),
-//       body: Center(
-//         child: EmergencyAlertButton(),
-//       ),
-//     ),
-//   ));
-// }
