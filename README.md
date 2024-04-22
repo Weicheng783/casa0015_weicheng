@@ -17,6 +17,12 @@ Story Trail gives users the ability to share their memories and photos by geotag
 - **Collaboration:** Weicheng collaborated with the GPT-3.5 model to create this unique experience.
 - **Technology Stack:** Written entirely in Dart and developed using Flutter.
 - **Gemini Insights:** Get point of advice from LLM side of opinion (Gemini Pro).
+  
+- ![Story Trail Showcase](showcase/11.JPG)
+- ![Story Trail Showcase](showcase/12.JPG)
+- ![Story Trail Showcase](showcase/13.JPG)
+- ![Story Trail Showcase](showcase/14.JPG)
+- ![Story Trail Showcase](showcase/15.JPG)
 
 ## UI Design
 

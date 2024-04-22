@@ -27,8 +27,8 @@ import 'navigation.dart';
 import 'login.dart'; // Import the login screen file
 
 // App version information
-String revision_ver = "5.3.2";
-String build_ver = "240420";
+String revision_ver = "5.3.3";
+String build_ver = "240422";
 
 // App Device Locker (240405)
 // Implementation: https://stackoverflow.com/questions/61889443/flutter-app-ability-to-turn-off-the-screen
